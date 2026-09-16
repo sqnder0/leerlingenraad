@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { hashPassword } from "../src/lib/password";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
@@ -19,14 +20,15 @@ async function main() {
   });
 
   // --- Users -------------------------------------------------------------
-  // passwordHash stays null until M2 (fallback-auth hashing with argon2id).
+  // Fallback-auth scheme (plan §Confirmed decisions): password = last name.
   const admin = await prisma.user.upsert({
     where: { username: "sander" },
-    update: {},
+    update: { passwordHash: await hashPassword("Pelgrims") },
     create: {
       firstName: "Sander",
       lastName: "Pelgrims",
       username: "sander",
+      passwordHash: await hashPassword("Pelgrims"),
       role: "ADMIN",
       status: "APPROVED",
       classGroup: "6A",
@@ -37,11 +39,12 @@ async function main() {
   const [emma, lukas, fien] = await Promise.all([
     prisma.user.upsert({
       where: { username: "emma" },
-      update: {},
+      update: { passwordHash: await hashPassword("Verhoeven") },
       create: {
         firstName: "Emma",
         lastName: "Verhoeven",
         username: "emma",
+        passwordHash: await hashPassword("Verhoeven"),
         role: "MEMBER",
         status: "APPROVED",
         classGroup: "5B",
@@ -51,11 +54,12 @@ async function main() {
     }),
     prisma.user.upsert({
       where: { username: "lukas" },
-      update: {},
+      update: { passwordHash: await hashPassword("Van Damme") },
       create: {
         firstName: "Lukas",
         lastName: "Van Damme",
         username: "lukas",
+        passwordHash: await hashPassword("Van Damme"),
         role: "MEMBER",
         status: "APPROVED",
         classGroup: "4C",
@@ -66,11 +70,12 @@ async function main() {
     // Still awaiting approval, to exercise the admin approval queue (M2).
     prisma.user.upsert({
       where: { username: "fien" },
-      update: {},
+      update: { passwordHash: await hashPassword("Willems") },
       create: {
         firstName: "Fien",
         lastName: "Willems",
         username: "fien",
+        passwordHash: await hashPassword("Willems"),
         role: "MEMBER",
         status: "PENDING",
         classGroup: "3A",
@@ -175,6 +180,9 @@ async function main() {
     users: [admin.username, emma.username, lukas.username, fien.username],
     events: [quiz.title, dagVanDeLeerlingenraad.title, schoolwinkeltje.title],
   });
+  console.log(
+    "Dev-login (fallback auth, wachtwoord = achternaam): sander/Pelgrims (ADMIN), emma/Verhoeven, lukas/Van Damme, fien/Willems (PENDING)",
+  );
 }
 
 main()

@@ -12,7 +12,9 @@ Het volledige plan (datamodel, auth-architectuur, routes, build-order) staat in
 - ✅ **M0 — Scaffold**: Next.js (App Router, TypeScript, Tailwind), ESLint + Prettier, Docker
   Compose Postgres, `.env.example`, dit README.
 - ✅ **M1 — Data model**: Prisma-schema (Prisma 7, driver adapters), migratie, seed-script.
-- ⬜ M2 — Fallback auth + approval gating
+- ✅ **M2 — Fallback auth + approval gating**: Auth.js v5 (Credentials, argon2id), `/login`,
+  status-gating (`proxy.ts` + `(protected)/layout.tsx`), `/pending`/`/rejected`, admin
+  ledenbeheer (aanmaken + goedkeuren/afwijzen).
 - ⬜ M3 — Events + RSVP
 - ⬜ M4 — Attendance + points
 - ⬜ M5 — School-year archiving
@@ -57,6 +59,9 @@ pnpm exec prisma db seed        # seed-data inladen (idempotent)
 pnpm exec prisma studio         # data bekijken/bewerken in de browser
 ```
 
+Dev-login na het seeden (fallback-auth, wachtwoord = achternaam):
+`sander`/`Pelgrims` (ADMIN), `emma`/`Verhoeven`, `lukas`/`Van Damme`, `fien`/`Willems` (PENDING).
+
 ## Projectstructuur
 
 ```
@@ -70,5 +75,12 @@ docker-compose.yml    lokale Postgres 16 voor development
 
 ## Deploy
 
-Zelf-gehost via het bestaande Dokploy-project van de gebruiker (Docker + Postgres), zie
-`docs/plan.md` §5 en §6 (M8). Nog niet opgezet.
+Zelf-gehost via het bestaande Dokploy-project van de gebruiker (Docker + Postgres). Bouwt via
+een eigen `Dockerfile` in de repo-root (multi-stage, `output: "standalone"`), **niet** via
+Dokploy's automatische Nixpacks-detectie: die faalde herhaaldelijk op `corepack` dat de
+gepinde pnpm-versie niet kon ophalen. `pnpm` wordt in de image daarom rechtstreeks via `npm`
+geïnstalleerd, corepack wordt niet gebruikt.
+
+`DATABASE_URL` en `AUTH_SECRET` moeten als environment variables op de Dokploy-app staan.
+Migraties (`prisma migrate deploy`) draaien nog niet automatisch mee in de container, dat
+volgt in M8.
