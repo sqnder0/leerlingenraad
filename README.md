@@ -11,7 +11,7 @@ Het volledige plan (datamodel, auth-architectuur, routes, build-order) staat in
 
 - ✅ **M0 — Scaffold**: Next.js (App Router, TypeScript, Tailwind), ESLint + Prettier, Docker
   Compose Postgres, `.env.example`, dit README.
-- ⬜ M1 — Data model (Prisma schema, migrations, seed)
+- ✅ **M1 — Data model**: Prisma-schema (Prisma 7, driver adapters), migratie, seed-script.
 - ⬜ M2 — Fallback auth + approval gating
 - ⬜ M3 — Events + RSVP
 - ⬜ M4 — Attendance + points
@@ -45,18 +45,27 @@ Overige scripts:
 pnpm lint           # ESLint
 pnpm format         # Prettier — schrijft wijzigingen weg
 pnpm format:check   # Prettier — controleert zonder te schrijven
-pnpm build           # productiebuild
+pnpm build          # productiebuild
 ```
 
-Zodra M1 (Prisma) er is komen hier ook `pnpm prisma migrate dev` en een seed-script bij.
+Database (Prisma 7, driver adapters, zie `.agents/skills/` voor de volledige conventies):
+
+```bash
+pnpm exec prisma migrate dev    # nieuwe migratie genereren + toepassen
+pnpm exec prisma generate       # client regenereren na een schema-wijziging
+pnpm exec prisma db seed        # seed-data inladen (idempotent)
+pnpm exec prisma studio         # data bekijken/bewerken in de browser
+```
 
 ## Projectstructuur
 
 ```
-docs/plan.md        volledig plan: datamodel, auth, routes, build-order
-src/app/             Next.js App Router
-docker-compose.yml   lokale Postgres 16 voor development
-.env.example         vereiste environment variables
+docs/plan.md         volledig plan: datamodel, auth, routes, build-order
+prisma/               schema, migrations, seed-script
+src/app/              Next.js App Router
+src/lib/prisma.ts     Prisma client singleton (v7 driver-adapter pattern)
+docker-compose.yml    lokale Postgres 16 voor development
+.env.example          vereiste environment variables
 ```
 
 ## Deploy
