@@ -2,3 +2,9 @@
 node_modules/
 pnpm-lock.yaml
 coverage/
+
+# Vendored Prisma agent-skill docs — keep byte-identical to upstream
+.agents/
+.claude/
+.windsurf/
+skills-lock.json

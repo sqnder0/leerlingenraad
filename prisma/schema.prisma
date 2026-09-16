@@ -1,0 +1,248 @@
+// Prisma schema for the Leerlingenraad Planning App.
+// Full context: ../docs/plan.md (see §1 Data model).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  MEMBER
+  ADMIN
+}
+
+enum UserStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  COMPLETED
+}
+
+enum RsvpResponse {
+  GOING
+  NOT_GOING
+}
+
+enum AttendanceStatus {
+  UNKNOWN
+  PRESENT
+  ABSENT
+}
+
+enum PointsLedgerType {
+  EVENT_ATTENDANCE
+  MANUAL_ADJUSTMENT
+}
+
+// ---------------------------------------------------------------------------
+// School year (archiving boundary — see plan §1)
+// ---------------------------------------------------------------------------
+
+model SchoolYear {
+  id       String   @id @default(cuid())
+  label    String   @unique // e.g. "2025-2026"
+  startsAt DateTime
+  endsAt   DateTime
+
+  /// Exactly one row should have isActive = true at any time. This is
+  /// enforced by the "start new year" admin action (M5), not a DB
+  /// constraint — see plan §1.
+  isActive Boolean @default(false)
+
+  events       Event[]
+  pointsLedger PointsLedger[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("school_years")
+}
+
+// ---------------------------------------------------------------------------
+// User + Auth.js adapter tables
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String     @id @default(cuid())
+  firstName     String
+  lastName      String
+  /// Unique login handle. Generated as lowercased first name; admin resolves
+  /// collisions by appending the last-name initial (e.g. "sander" -> "sanderp").
+  username      String     @unique
+  /// Fallback-auth password hash (argon2id, added in M2). Null until a
+  /// Smartschool-only account is linked, or before M2 ships.
+  passwordHash  String?
+  /// Reserved for future Smartschool OAuth account linking (M9).
+  email         String?    @unique
+  /// Reserved for future Smartschool OAuth provider match (M9).
+  smartschoolId String?    @unique
+  role          Role       @default(MEMBER)
+  status        UserStatus @default(PENDING)
+  /// e.g. "5A" — makes the vrijroosteren export useful to the school office.
+  classGroup    String?
+
+  approvedById String?
+  approvedBy   User?     @relation("UserApprovals", fields: [approvedById], references: [id], onDelete: SetNull)
+  approvedTo   User[]    @relation("UserApprovals")
+  approvedAt   DateTime?
+
+  accounts Account[]
+  sessions Session[]
+
+  createdEvents        Event[]        @relation("EventCreatedBy")
+  signups              Signup[]
+  pointsLedgerEntries  PointsLedger[] @relation("PointsLedgerUser")
+  pointsLedgerAuthored PointsLedger[] @relation("PointsLedgerCreatedBy")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+/// Standard Auth.js Prisma-adapter table. Unused by the fallback Credentials
+/// provider today; created now so Smartschool OAuth (M9) needs zero schema
+/// changes — see plan §2.
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+/// Standard Auth.js Prisma-adapter table. The session *strategy* is JWT
+/// (plan §2), so this stays empty in practice until/unless that changes.
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+/// Standard Auth.js Prisma-adapter table (email/passwordless verification).
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ---------------------------------------------------------------------------
+// Events + RSVP
+// ---------------------------------------------------------------------------
+
+model Event {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  location    String?
+  startAt     DateTime
+  endAt       DateTime
+  pointValue  Int
+  /// COMPLETED = attendance confirmed / points awarded (M4).
+  status      EventStatus @default(DRAFT)
+
+  schoolYearId String
+  schoolYear   SchoolYear @relation(fields: [schoolYearId], references: [id])
+
+  createdById String
+  createdBy   User   @relation("EventCreatedBy", fields: [createdById], references: [id])
+
+  signups      Signup[]
+  pointsLedger PointsLedger[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("events")
+}
+
+model Signup {
+  id      String @id @default(cuid())
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  response    RsvpResponse
+  respondedAt DateTime     @default(now())
+
+  /// Set by an admin post-event, distinct from and harmless for a member to
+  /// see their own value of (unlike points — see plan §1/§3).
+  attended AttendanceStatus @default(UNKNOWN)
+  /// Idempotency guard: re-running attendance confirmation can't double-award.
+  pointsAwarded Boolean @default(false)
+
+  pointsLedger PointsLedger[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([eventId, userId])
+  @@map("signups")
+}
+
+// ---------------------------------------------------------------------------
+// Points (admin-only — see plan §3 for how this stays out of member routes)
+// ---------------------------------------------------------------------------
+
+model PointsLedger {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation("PointsLedgerUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  delta  Int
+  reason String
+  type   PointsLedgerType
+
+  eventId String?
+  event   Event?  @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
+  signupId String?
+  signup   Signup? @relation(fields: [signupId], references: [id], onDelete: SetNull)
+
+  /// Explicit rather than derived: manual adjustments have no event to pull
+  /// it from. Balance = SUM(delta) computed on read, scoped to this field.
+  schoolYearId String
+  schoolYear   SchoolYear @relation(fields: [schoolYearId], references: [id])
+
+  createdById String
+  createdBy   User   @relation("PointsLedgerCreatedBy", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("points_ledger")
+}
