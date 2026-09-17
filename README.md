@@ -15,7 +15,9 @@ Het volledige plan (datamodel, auth-architectuur, routes, build-order) staat in
 - ✅ **M2 — Fallback auth + approval gating**: Auth.js v5 (Credentials, argon2id), `/login`,
   status-gating (`proxy.ts` + `(protected)/layout.tsx`), `/pending`/`/rejected`, admin
   ledenbeheer (aanmaken + goedkeuren/afwijzen).
-- ⬜ M3 — Events + RSVP
+- ✅ **M3 — Events + RSVP + duty rotation**: eenmalige events (CRUD + RSVP), en wekelijks
+  terugkerende events met automatische eerlijke toewijzing per trimester (`RecurringSeries`,
+  `Trimester`, herverdeling bij afmelden).
 - ⬜ M4 — Attendance + points
 - ⬜ M5 — School-year archiving
 - ⬜ M6 — Vrijroosteren-rapport

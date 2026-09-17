@@ -1,0 +1,94 @@
+"use server";
+
+import { z } from "zod";
+import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/current-user";
+import { prisma } from "@/lib/prisma";
+
+const eventSchema = z.object({
+  title: z.string().trim().min(1, "Titel is verplicht."),
+  description: z.string().trim().optional(),
+  location: z.string().trim().optional(),
+  startAt: z.string().min(1, "Startdatum/tijd is verplicht."),
+  endAt: z.string().min(1, "Einddatum/tijd is verplicht."),
+  pointValue: z.coerce.number().int().min(0),
+  status: z.enum(["DRAFT", "PUBLISHED", "CANCELLED", "COMPLETED"]),
+});
+
+export type EventFormState = { status: "idle" } | { status: "error"; message: string };
+
+async function getActiveSchoolYearId() {
+  const active = await prisma.schoolYear.findFirst({ where: { isActive: true } });
+  if (!active) throw new Error("Geen actief schooljaar ingesteld.");
+  return active.id;
+}
+
+export async function createEvent(
+  _prevState: EventFormState,
+  formData: FormData,
+): Promise<EventFormState> {
+  const admin = await requireAdmin();
+
+  const parsed = eventSchema.safeParse({
+    title: formData.get("title"),
+    description: formData.get("description") || undefined,
+    location: formData.get("location") || undefined,
+    startAt: formData.get("startAt"),
+    endAt: formData.get("endAt"),
+    pointValue: formData.get("pointValue"),
+    status: formData.get("status") ?? "DRAFT",
+  });
+  if (!parsed.success) {
+    return { status: "error", message: parsed.error.issues[0].message };
+  }
+
+  const schoolYearId = await getActiveSchoolYearId();
+  await prisma.event.create({
+    data: {
+      ...parsed.data,
+      startAt: new Date(parsed.data.startAt),
+      endAt: new Date(parsed.data.endAt),
+      schoolYearId,
+      createdById: admin.id,
+    },
+  });
+
+  revalidatePath("/admin/events");
+  revalidatePath("/events");
+  return { status: "idle" };
+}
+
+export async function updateEvent(
+  eventId: string,
+  _prevState: EventFormState,
+  formData: FormData,
+): Promise<EventFormState> {
+  await requireAdmin();
+
+  const parsed = eventSchema.safeParse({
+    title: formData.get("title"),
+    description: formData.get("description") || undefined,
+    location: formData.get("location") || undefined,
+    startAt: formData.get("startAt"),
+    endAt: formData.get("endAt"),
+    pointValue: formData.get("pointValue"),
+    status: formData.get("status"),
+  });
+  if (!parsed.success) {
+    return { status: "error", message: parsed.error.issues[0].message };
+  }
+
+  await prisma.event.update({
+    where: { id: eventId },
+    data: {
+      ...parsed.data,
+      startAt: new Date(parsed.data.startAt),
+      endAt: new Date(parsed.data.endAt),
+    },
+  });
+
+  revalidatePath("/admin/events");
+  revalidatePath(`/events/${eventId}`);
+  revalidatePath("/events");
+  return { status: "idle" };
+}

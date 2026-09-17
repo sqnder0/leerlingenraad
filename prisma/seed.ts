@@ -2,6 +2,7 @@ import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { hashPassword } from "../src/lib/password";
+import { generateRosterForSeries } from "../src/lib/rotation";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
@@ -36,7 +37,7 @@ async function main() {
     },
   });
 
-  const [emma, lukas, fien] = await Promise.all([
+  const [emma, lukas, fien, noor, teacher] = await Promise.all([
     prisma.user.upsert({
       where: { username: "emma" },
       update: { passwordHash: await hashPassword("Verhoeven") },
@@ -79,6 +80,38 @@ async function main() {
         role: "MEMBER",
         status: "PENDING",
         classGroup: "3A",
+      },
+    }),
+    prisma.user.upsert({
+      where: { username: "noor" },
+      update: { passwordHash: await hashPassword("Janssens") },
+      create: {
+        firstName: "Noor",
+        lastName: "Janssens",
+        username: "noor",
+        passwordHash: await hashPassword("Janssens"),
+        role: "MEMBER",
+        status: "APPROVED",
+        classGroup: "5A",
+        approvedById: admin.id,
+        approvedAt: new Date(),
+      },
+    }),
+    // A supervising teacher with an admin account — excluded from the duty
+    // rotation pool (isTeacher: true), per docs/plan.md.
+    prisma.user.upsert({
+      where: { username: "ann" },
+      update: { passwordHash: await hashPassword("Peeters") },
+      create: {
+        firstName: "Ann",
+        lastName: "Peeters",
+        username: "ann",
+        passwordHash: await hashPassword("Peeters"),
+        role: "ADMIN",
+        status: "APPROVED",
+        isTeacher: true,
+        approvedById: admin.id,
+        approvedAt: new Date(),
       },
     }),
   ]);
@@ -177,12 +210,52 @@ async function main() {
 
   console.log({
     schoolYear: schoolYear.label,
-    users: [admin.username, emma.username, lukas.username, fien.username],
+    users: [
+      admin.username,
+      emma.username,
+      lukas.username,
+      fien.username,
+      noor.username,
+      teacher.username,
+    ],
     events: [quiz.title, dagVanDeLeerlingenraad.title, schoolwinkeltje.title],
   });
   console.log(
-    "Dev-login (fallback auth, wachtwoord = achternaam): sander/Pelgrims (ADMIN), emma/Verhoeven, lukas/Van Damme, fien/Willems (PENDING)",
+    "Dev-login (fallback auth, wachtwoord = achternaam): sander/Pelgrims (ADMIN), emma/Verhoeven, lukas/Van Damme, noor/Janssens, fien/Willems (PENDING), ann/Peeters (ADMIN, isTeacher, uitgesloten van rotatie)",
   );
+
+  // --- Duty rotation demo (M3) --------------------------------------------
+  const trimester = await prisma.trimester.upsert({
+    where: { id: "seed-trimester-1" },
+    update: {},
+    create: {
+      id: "seed-trimester-1",
+      label: "Trimester 1",
+      startsAt: new Date("2026-09-01"),
+      endsAt: new Date("2026-10-15"),
+      schoolYearId: schoolYear.id,
+    },
+  });
+
+  const speelplaatstoezicht = await prisma.recurringSeries.upsert({
+    where: { id: "seed-series-speelplaats" },
+    update: {},
+    create: {
+      id: "seed-series-speelplaats",
+      title: "Speelplaatstoezicht",
+      location: "Speelplaats",
+      dayOfWeek: 3, // woensdag
+      startTime: "12:00",
+      endTime: "13:00",
+      pointValue: 1,
+      membersNeeded: 1,
+      schoolYearId: schoolYear.id,
+      createdById: admin.id,
+    },
+  });
+
+  const roster = await generateRosterForSeries(speelplaatstoezicht.id, trimester.id, admin.id);
+  console.log("Rooster gegenereerd:", roster);
 }
 
 main()

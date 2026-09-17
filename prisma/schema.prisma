@@ -63,8 +63,10 @@ model SchoolYear {
   /// constraint — see plan §1.
   isActive Boolean @default(false)
 
-  events       Event[]
-  pointsLedger PointsLedger[]
+  events          Event[]
+  pointsLedger    PointsLedger[]
+  trimesters      Trimester[]
+  recurringSeries RecurringSeries[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -94,6 +96,10 @@ model User {
   status        UserStatus @default(PENDING)
   /// e.g. "5A" — makes the vrijroosteren export useful to the school office.
   classGroup    String?
+  /// Excludes an otherwise-ADMIN supervising teacher from the duty
+  /// rotation pool (M3). Rotation eligibility is status=APPROVED &&
+  /// isTeacher=false, independent of role.
+  isTeacher     Boolean    @default(false)
 
   approvedById String?
   approvedBy   User?     @relation("UserApprovals", fields: [approvedById], references: [id], onDelete: SetNull)
@@ -103,10 +109,11 @@ model User {
   accounts Account[]
   sessions Session[]
 
-  createdEvents        Event[]        @relation("EventCreatedBy")
+  createdEvents        Event[]           @relation("EventCreatedBy")
+  createdSeries        RecurringSeries[] @relation("SeriesCreatedBy")
   signups              Signup[]
-  pointsLedgerEntries  PointsLedger[] @relation("PointsLedgerUser")
-  pointsLedgerAuthored PointsLedger[] @relation("PointsLedgerCreatedBy")
+  pointsLedgerEntries  PointsLedger[]    @relation("PointsLedgerUser")
+  pointsLedgerAuthored PointsLedger[]    @relation("PointsLedgerCreatedBy")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -178,6 +185,13 @@ model Event {
   schoolYearId String
   schoolYear   SchoolYear @relation(fields: [schoolYearId], references: [id])
 
+  /// Set only on occurrences created by the roster-generation action (M3).
+  seriesId    String?
+  series      RecurringSeries? @relation(fields: [seriesId], references: [id])
+  /// Set only on occurrences created by the roster-generation action (M3).
+  trimesterId String?
+  trimester   Trimester?       @relation(fields: [trimesterId], references: [id])
+
   createdById String
   createdBy   User   @relation("EventCreatedBy", fields: [createdById], references: [id])
 
@@ -200,11 +214,16 @@ model Signup {
   response    RsvpResponse
   respondedAt DateTime     @default(now())
 
+  /// True for signups the rotation algorithm created (M3), vs a member's
+  /// own RSVP. Flipping an autoAssigned signup to NOT_GOING ("declining")
+  /// is what triggers immediate reassignment of that slot — see plan §1.
+  autoAssigned Boolean @default(false)
+
   /// Set by an admin post-event, distinct from and harmless for a member to
   /// see their own value of (unlike points — see plan §1/§3).
-  attended AttendanceStatus @default(UNKNOWN)
+  attended      AttendanceStatus @default(UNKNOWN)
   /// Idempotency guard: re-running attendance confirmation can't double-award.
-  pointsAwarded Boolean @default(false)
+  pointsAwarded Boolean          @default(false)
 
   pointsLedger PointsLedger[]
 
@@ -245,4 +264,57 @@ model PointsLedger {
   createdAt DateTime @default(now())
 
   @@map("points_ledger")
+}
+
+// ---------------------------------------------------------------------------
+// Duty rotation (M3): weekly recurring events with fair auto-assignment
+// ---------------------------------------------------------------------------
+
+model Trimester {
+  id       String   @id @default(cuid())
+  label    String // e.g. "Trimester 1"
+  startsAt DateTime
+  endsAt   DateTime
+
+  schoolYearId String
+  schoolYear   SchoolYear @relation(fields: [schoolYearId], references: [id])
+
+  events Event[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("trimesters")
+}
+
+model RecurringSeries {
+  id          String  @id @default(cuid())
+  title       String
+  description String?
+  location    String?
+
+  /// 0 = Sunday .. 6 = Saturday (JS Date.getDay() convention).
+  dayOfWeek Int
+  /// "HH:mm", combined with each occurrence's date to build that Event's
+  /// startAt/endAt.
+  startTime String
+  endTime   String
+
+  pointValue    Int
+  /// Slots to fill per occurrence.
+  membersNeeded Int @default(1)
+
+  schoolYearId String
+  schoolYear   SchoolYear @relation(fields: [schoolYearId], references: [id])
+  isActive     Boolean    @default(true)
+
+  events Event[]
+
+  createdById String
+  createdBy   User   @relation("SeriesCreatedBy", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("recurring_series")
 }

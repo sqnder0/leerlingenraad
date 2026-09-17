@@ -11,6 +11,8 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
       <header className="flex items-center justify-between border-b border-black/10 px-4 py-3 dark:border-white/10">
         <nav className="flex gap-4 text-sm">
           <Link href="/dashboard">Dashboard</Link>
+          <Link href="/events">Agenda</Link>
+          <Link href="/my/signups">Mijn aanmeldingen</Link>
           {user.role === "ADMIN" && <Link href="/admin">Beheer</Link>}
         </nav>
         <form action={logout} className="flex items-center gap-3">

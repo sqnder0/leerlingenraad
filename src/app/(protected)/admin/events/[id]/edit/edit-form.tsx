@@ -1,0 +1,140 @@
+"use client";
+
+import { useActionState } from "react";
+import { updateEvent, type EventFormState } from "@/actions/admin/events";
+
+const initialState: EventFormState = { status: "idle" };
+const inputClass =
+  "rounded border border-black/15 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-zinc-900";
+
+export function EditEventForm({
+  eventId,
+  defaultValues,
+}: {
+  eventId: string;
+  defaultValues: {
+    title: string;
+    description: string;
+    location: string;
+    startAt: string;
+    endAt: string;
+    pointValue: string;
+    status: string;
+  };
+}) {
+  const action = updateEvent.bind(null, eventId);
+  const [state, formAction, isPending] = useActionState(action, initialState);
+
+  return (
+    <form action={formAction} className="flex max-w-sm flex-col gap-4">
+      <div className="flex flex-col gap-1">
+        <label htmlFor="title" className="text-sm text-zinc-600 dark:text-zinc-400">
+          Titel
+        </label>
+        <input
+          id="title"
+          name="title"
+          required
+          defaultValue={defaultValues.title}
+          className={inputClass}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="description" className="text-sm text-zinc-600 dark:text-zinc-400">
+          Beschrijving
+        </label>
+        <textarea
+          id="description"
+          name="description"
+          rows={3}
+          defaultValue={defaultValues.description}
+          className={inputClass}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="location" className="text-sm text-zinc-600 dark:text-zinc-400">
+          Locatie
+        </label>
+        <input
+          id="location"
+          name="location"
+          defaultValue={defaultValues.location}
+          className={inputClass}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="startAt" className="text-sm text-zinc-600 dark:text-zinc-400">
+          Start
+        </label>
+        <input
+          id="startAt"
+          name="startAt"
+          type="datetime-local"
+          required
+          defaultValue={defaultValues.startAt}
+          className={inputClass}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="endAt" className="text-sm text-zinc-600 dark:text-zinc-400">
+          Einde
+        </label>
+        <input
+          id="endAt"
+          name="endAt"
+          type="datetime-local"
+          required
+          defaultValue={defaultValues.endAt}
+          className={inputClass}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="pointValue" className="text-sm text-zinc-600 dark:text-zinc-400">
+          Punten
+        </label>
+        <input
+          id="pointValue"
+          name="pointValue"
+          type="number"
+          required
+          defaultValue={defaultValues.pointValue}
+          className={inputClass}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="status" className="text-sm text-zinc-600 dark:text-zinc-400">
+          Status
+        </label>
+        <select
+          id="status"
+          name="status"
+          defaultValue={defaultValues.status}
+          className={inputClass}
+        >
+          <option value="DRAFT">Concept</option>
+          <option value="PUBLISHED">Gepubliceerd</option>
+          <option value="CANCELLED">Geannuleerd</option>
+          <option value="COMPLETED">Afgerond</option>
+        </select>
+      </div>
+
+      {state.status === "error" && (
+        <p className="text-sm text-red-600 dark:text-red-400">{state.message}</p>
+      )}
+
+      <button
+        type="submit"
+        disabled={isPending}
+        className="rounded bg-black px-3 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-black"
+      >
+        {isPending ? "Bezig…" : "Opslaan"}
+      </button>
+    </form>
+  );
+}
