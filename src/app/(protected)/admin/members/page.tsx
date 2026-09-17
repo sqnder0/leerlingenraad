@@ -35,7 +35,9 @@ export default async function AdminMembersPage() {
             {users.map((user) => (
               <tr key={user.id} className="border-b border-black/5 dark:border-white/5">
                 <td className="py-2 pr-4">
-                  {user.firstName} {user.lastName}
+                  <Link href={`/admin/members/${user.id}`} className="underline underline-offset-2">
+                    {user.firstName} {user.lastName}
+                  </Link>
                 </td>
                 <td className="py-2 pr-4 font-mono text-xs">{user.username}</td>
                 <td className="py-2 pr-4">{user.classGroup ?? "—"}</td>

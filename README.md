@@ -18,7 +18,9 @@ Het volledige plan (datamodel, auth-architectuur, routes, build-order) staat in
 - ✅ **M3 — Events + RSVP + duty rotation**: eenmalige events (CRUD + RSVP), en wekelijks
   terugkerende events met automatische eerlijke toewijzing per trimester (`RecurringSeries`,
   `Trimester`, herverdeling bij afmelden).
-- ⬜ M4 — Attendance + points
+- ✅ **M4 — Attendance + points**: aanwezigheid bevestigen per event (idempotent puntentoekenning),
+  admin-only `lib/data/points.ts` (afgedwongen via een eslint-regel), leden-detailpagina met
+  ledger + manuele aanpassing, puntendashboard (per schooljaar/klas, admin-only).
 - ⬜ M5 — School-year archiving
 - ⬜ M6 — Vrijroosteren-rapport
 - ⬜ M7 — Polish/hardening

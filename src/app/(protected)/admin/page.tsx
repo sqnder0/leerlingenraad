@@ -48,7 +48,15 @@ export default async function AdminHomePage() {
         </p>
       </Link>
 
-      <p className="text-sm text-zinc-500">De puntendashboard komt in M4.</p>
+      <Link
+        href="/admin/points"
+        className="rounded border border-black/10 p-4 hover:bg-black/[.03] dark:border-white/10 dark:hover:bg-white/[.05]"
+      >
+        <p className="font-medium text-black dark:text-zinc-50">Puntendashboard</p>
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          Eerlijkheid per lid, dit schooljaar.
+        </p>
+      </Link>
     </div>
   );
 }

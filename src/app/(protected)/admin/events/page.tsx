@@ -67,6 +67,14 @@ export default async function AdminEventsPage() {
                 >
                   Bewerken
                 </Link>
+                {event.status !== "DRAFT" && event.status !== "CANCELLED" && (
+                  <Link
+                    href={`/admin/events/${event.id}/attendance`}
+                    className="ml-3 underline underline-offset-2"
+                  >
+                    Aanwezigheid
+                  </Link>
+                )}
               </td>
             </tr>
           ))}
