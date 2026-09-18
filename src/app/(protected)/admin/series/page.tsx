@@ -10,7 +10,9 @@ export default async function AdminSeriesPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">Terugkerende events</h1>
+        <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">
+          Terugkerende events
+        </h1>
         <Link
           href="/admin/series/new"
           className="rounded bg-brand-600 px-3 py-1.5 text-sm font-medium text-white dark:bg-brand-500 dark:text-white"

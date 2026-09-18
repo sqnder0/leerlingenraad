@@ -81,7 +81,10 @@ export default async function AdminEventsPage({
             </thead>
             <tbody>
               {events.map((event) => (
-                <tr key={event.id} className="border-b border-brand-600/10 dark:border-brand-400/10">
+                <tr
+                  key={event.id}
+                  className="border-b border-brand-600/10 dark:border-brand-400/10"
+                >
                   <td className="py-2 pr-4">
                     {event.title}
                     {event.series && (

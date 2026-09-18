@@ -40,7 +40,9 @@ export default async function TrimesterDetailPage({ params }: { params: Promise<
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
       <div>
-        <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">{trimester.label}</h1>
+        <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">
+          {trimester.label}
+        </h1>
         <p className="text-sm text-zinc-500">
           {new Intl.DateTimeFormat("nl-BE").format(trimester.startsAt)} –{" "}
           {new Intl.DateTimeFormat("nl-BE").format(trimester.endsAt)}
@@ -76,7 +78,10 @@ export default async function TrimesterDetailPage({ params }: { params: Promise<
               </thead>
               <tbody>
                 {events.map((event) => (
-                  <tr key={event.id} className="border-b border-brand-600/10 dark:border-brand-400/10">
+                  <tr
+                    key={event.id}
+                    className="border-b border-brand-600/10 dark:border-brand-400/10"
+                  >
                     <td className="py-2 pr-4">
                       {new Intl.DateTimeFormat("nl-BE", {
                         weekday: "short",

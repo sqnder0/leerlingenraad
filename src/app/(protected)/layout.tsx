@@ -10,7 +10,10 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
     <div className="flex min-h-screen flex-col">
       <header className="flex flex-col gap-2 border-b border-brand-600/15 bg-brand-50 px-4 py-3 print:hidden sm:flex-row sm:items-center sm:justify-between dark:border-brand-400/15 dark:bg-brand-950">
         <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1">
-          <Link href="/dashboard" className="text-sm font-semibold text-brand-800 dark:text-brand-100">
+          <Link
+            href="/dashboard"
+            className="text-sm font-semibold text-brand-800 dark:text-brand-100"
+          >
             Leerlingenraad
           </Link>
           <nav className="flex flex-wrap gap-x-4 gap-y-1 text-sm">

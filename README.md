@@ -33,6 +33,11 @@ Het volledige plan (datamodel, auth-architectuur, routes, build-order) staat in
   Nog manueel te doen op Dokploy: de Postgres-service en de environment variables
   (`DATABASE_URL`, `AUTH_SECRET`) instellen, en een deploy als smoke test draaien.
 - ⬜ M9 — Smartschool OAuth (geblokkeerd op extern: school moet OAuth-app registreren)
+- ✅ **M10 — Installeerbare app + push-meldingen**: web-manifest zodat de app als PWA op het
+  startscherm kan (`src/app/manifest.ts`), dashboard opgesplitst in "verwacht van jou"
+  (opt-out/beurtrol, met afmeld-knop) en "opt-in events" (met aanmeld/afmeld-knop), en een
+  automatische pushmelding 24u voor elk event waar je "ik kom" op staat (`src/lib/reminders.ts`,
+  via `instrumentation.ts`).
 
 Zie `docs/plan.md` §6 voor de volledige, gedetailleerde build-order.
 
@@ -124,6 +129,39 @@ Invoke-RestMethod -Uri "https://leerlingenraad.sqnder.dev/api/bootstrap" `
 De route werkt maar één keer: zodra er één gebruiker bestaat, geeft ze voorgoed een 403, secret
 of niet. Nadien kun je die environment variable laten staan of verwijderen, dat maakt niet meer
 uit.
+
+## Push-meldingen
+
+De app kan 24u voor een event waar je "ik kom" op staat (opt-in of automatisch toegewezen) een
+pushmelding sturen, via Web Push — geen externe dienst nodig (geen Firebase/OneSignal-account),
+wel HTTPS in productie (self-signed of geen HTTPS werkt niet voor Service Workers/Push).
+
+Genereer één keer een VAPID-sleutelpaar (identificeert deze app bij de pushdiensten van de
+browsers) en zet ze als environment variables op de Dokploy-app:
+
+```bash
+pnpm exec web-push generate-vapid-keys
+```
+
+```
+VAPID_PUBLIC_KEY=<public key>
+VAPID_PRIVATE_KEY=<private key>
+VAPID_SUBJECT=mailto:jouw-email@voorbeeld.be
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=<zelfde public key>
+```
+
+`NEXT_PUBLIC_VAPID_PUBLIC_KEY` is dezelfde waarde als `VAPID_PUBLIC_KEY`, maar dan client-side
+beschikbaar (nodig voor `PushManager.subscribe()` in de browser). Zonder deze variables draait
+de app gewoon door — er wordt dan alleen geen pushmelding verstuurd.
+
+Een lid schakelt meldingen zelf in via de knop op het dashboard (vraagt browser-toestemming en
+registreert het toestel). Een periodieke check (elke 20 minuten, zie `src/instrumentation.ts`)
+zoekt events die over ~24u starten en stuurt dan één melding per geabonneerd toestel;
+`Signup.reminderSentAt` voorkomt dubbele meldingen.
+
+**iOS-beperking:** Apple ondersteunt Web Push alleen als de app als PWA op het startscherm is
+toegevoegd ("Deel" → "Voeg toe aan beginscherm") — in Safari zelf (gewone tab) werkt het niet.
+Android/desktop-Chrome en Firefox werken wel meteen in de browser.
 
 ## Deploy
 

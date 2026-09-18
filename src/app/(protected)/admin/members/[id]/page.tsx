@@ -54,7 +54,10 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
               </thead>
               <tbody>
                 {ledger.map((entry) => (
-                  <tr key={entry.id} className="border-b border-brand-600/10 dark:border-brand-400/10">
+                  <tr
+                    key={entry.id}
+                    className="border-b border-brand-600/10 dark:border-brand-400/10"
+                  >
                     <td className="py-2 pr-4">
                       {new Intl.DateTimeFormat("nl-BE").format(entry.createdAt)}
                     </td>

@@ -109,11 +109,12 @@ model User {
   accounts Account[]
   sessions Session[]
 
-  createdEvents        Event[]           @relation("EventCreatedBy")
-  createdSeries        RecurringSeries[] @relation("SeriesCreatedBy")
+  createdEvents        Event[]            @relation("EventCreatedBy")
+  createdSeries        RecurringSeries[]  @relation("SeriesCreatedBy")
   signups              Signup[]
-  pointsLedgerEntries  PointsLedger[]    @relation("PointsLedgerUser")
-  pointsLedgerAuthored PointsLedger[]    @relation("PointsLedgerCreatedBy")
+  pointsLedgerEntries  PointsLedger[]     @relation("PointsLedgerUser")
+  pointsLedgerAuthored PointsLedger[]     @relation("PointsLedgerCreatedBy")
+  pushSubscriptions    PushSubscription[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -225,6 +226,11 @@ model Signup {
   /// Idempotency guard: re-running attendance confirmation can't double-award.
   pointsAwarded Boolean          @default(false)
 
+  /// Idempotency guard for the 24h-before push reminder (see
+  /// src/lib/reminders.ts) — set once the reminder for this signup has
+  /// gone out, so a re-run of the periodic check can't send it twice.
+  reminderSentAt DateTime?
+
   pointsLedger PointsLedger[]
 
   createdAt DateTime @default(now())
@@ -232,6 +238,25 @@ model Signup {
 
   @@unique([eventId, userId])
   @@map("signups")
+}
+
+// ---------------------------------------------------------------------------
+// Web push (M10): per-device push subscriptions for the 24h event reminder.
+// ---------------------------------------------------------------------------
+
+model PushSubscription {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Push service URL for this device/browser install — unique per device,
+  /// which is also what lets a re-subscribe upsert instead of duplicate.
+  endpoint String @unique
+  p256dh   String
+  auth     String
+
+  createdAt DateTime @default(now())
+
+  @@map("push_subscriptions")
 }
 
 // ---------------------------------------------------------------------------
