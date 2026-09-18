@@ -38,19 +38,24 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Isolated toolchain used only to run migrations at container startup —
-# kept in its own directory/node_modules, separate from the standalone
-# app above, since mixing a plain `npm install` into Next's traced
-# standalone node_modules is asking for trouble. Verified locally that
-# `prisma migrate deploy` needs nothing beyond prisma + dotenv (it talks
-# to Postgres directly via its own schema-engine, not through
+# Isolated toolchain used only to run migrations at container startup.
+# Deliberately NOT under /app: npm install walks up looking for an
+# ancestor package.json for peer-dependency resolution regardless of
+# workspaces config, and /app/package.json (from the standalone copy
+# above) was exactly that — every install here pulled in and conflicted
+# over the *whole app's* dependency tree (vitest, pg, styled-jsx...).
+# Reproduced and confirmed locally: identical setup one level deeper
+# under /app failed with the exact ERESOLVE seen on Dokploy; as a
+# sibling of /app it installs cleanly. Verified separately that
+# `prisma migrate deploy` itself needs nothing beyond prisma + dotenv
+# (it talks to Postgres directly via its own schema-engine, not through
 # @prisma/client or our adapter).
-WORKDIR /app/migrate
+WORKDIR /migrate
 RUN npm install --no-save prisma@7.10.0 dotenv@17.4.2
 COPY --from=builder /app/prisma/schema.prisma ./prisma/schema.prisma
 COPY --from=builder /app/prisma/migrations ./prisma/migrations
 COPY --from=builder /app/prisma7.config.ts ./prisma7.config.ts
-RUN chown -R nextjs:nodejs /app/migrate
+RUN chown -R nextjs:nodejs /migrate
 
 WORKDIR /app
 USER nextjs
@@ -60,4 +65,4 @@ ENV HOSTNAME="0.0.0.0"
 
 # Fails the container start if migrations fail, rather than serving the
 # app against an out-of-sync schema.
-CMD ["sh", "-c", "cd /app/migrate && node_modules/.bin/prisma migrate deploy && cd /app && node server.js"]
+CMD ["sh", "-c", "cd /migrate && node_modules/.bin/prisma migrate deploy && cd /app && node server.js"]
