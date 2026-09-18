@@ -8,7 +8,7 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="flex items-center justify-between border-b border-black/10 px-4 py-3 dark:border-white/10">
+      <header className="flex items-center justify-between border-b border-black/10 px-4 py-3 print:hidden dark:border-white/10">
         <nav className="flex gap-4 text-sm">
           <Link href="/dashboard">Dashboard</Link>
           <Link href="/events">Agenda</Link>

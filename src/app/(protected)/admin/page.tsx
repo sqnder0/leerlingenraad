@@ -59,6 +59,16 @@ export default async function AdminHomePage() {
       </Link>
 
       <Link
+        href="/admin/vrijroosteren"
+        className="rounded border border-black/10 p-4 hover:bg-black/[.03] dark:border-white/10 dark:hover:bg-white/[.05]"
+      >
+        <p className="font-medium text-black dark:text-zinc-50">Vrijroosteren</p>
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          Rapport voor het schoolsecretariaat, printbaar of als CSV.
+        </p>
+      </Link>
+
+      <Link
         href="/admin/points"
         className="rounded border border-black/10 p-4 hover:bg-black/[.03] dark:border-white/10 dark:hover:bg-white/[.05]"
       >

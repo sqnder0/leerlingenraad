@@ -23,7 +23,8 @@ Het volledige plan (datamodel, auth-architectuur, routes, build-order) staat in
   ledger + manuele aanpassing, puntendashboard (per schooljaar/klas, admin-only).
 - ✅ **M5 — School-year archiving**: `/admin/school-years` (archiveer huidig & start nieuw
   jaar, geen data verwijderd), schooljaar-selector op events en puntendashboard.
-- ⬜ M6 — Vrijroosteren-rapport
+- ✅ **M6 — Vrijroosteren-rapport**: `/admin/vrijroosteren`, gegroepeerd per datum, printbaar
+  (`print:hidden` op de UI-chrome) en exporteerbaar als CSV via een aparte route handler.
 - ⬜ M7 — Polish/hardening
 - ⬜ M8 — Deploy (Dokploy)
 - ⬜ M9 — Smartschool OAuth (geblokkeerd op extern: school moet OAuth-app registreren)
