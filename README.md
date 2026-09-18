@@ -85,6 +85,26 @@ docker-compose.yml    lokale Postgres 16 voor development
 .env.example          vereiste environment variables
 ```
 
+## Inloggen
+
+Er is geen self-registratie: accounts worden altijd door een beheerder aangemaakt via
+`/admin/members/new`. Lokaal na het seeden kun je meteen in met de dev-logins hierboven.
+
+**Op een verse productie-omgeving bestaat er dus nog niemand om mee in te loggen.** Daarvoor
+is er een eenmalige bootstrap-route:
+
+```bash
+curl -X POST https://jouw-domein/api/bootstrap \
+  -H "x-bootstrap-secret: $BOOTSTRAP_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"firstName":"Sander","lastName":"Pelgrims","password":"een-echt-sterk-wachtwoord"}'
+```
+
+Vereist dat `BOOTSTRAP_SECRET` als environment variable op de Dokploy-app staat (zelf een
+willekeurige waarde kiezen). De route werkt maar één keer: zodra er één gebruiker bestaat,
+geeft ze voorgoed een 403, secret of niet. Nadien kun je die environment variable laten staan
+of verwijderen, dat maakt niet meer uit.
+
 ## Deploy
 
 Zelf-gehost via het bestaande Dokploy-project van de gebruiker (Docker + Postgres). Bouwt via
