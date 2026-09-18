@@ -1,11 +1,24 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
-export default async function AdminEventsPage() {
-  const events = await prisma.event.findMany({
-    orderBy: { startAt: "desc" },
-    include: { series: { select: { title: true } } },
-  });
+export default async function AdminEventsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ schoolYearId?: string }>;
+}) {
+  const { schoolYearId } = await searchParams;
+
+  const schoolYears = await prisma.schoolYear.findMany({ orderBy: { startsAt: "desc" } });
+  const activeYear = schoolYears.find((y) => y.isActive) ?? schoolYears[0];
+  const selectedYear = schoolYears.find((y) => y.id === schoolYearId) ?? activeYear;
+
+  const events = selectedYear
+    ? await prisma.event.findMany({
+        where: { schoolYearId: selectedYear.id },
+        orderBy: { startAt: "desc" },
+        include: { series: { select: { title: true } } },
+      })
+    : [];
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
@@ -30,6 +43,27 @@ export default async function AdminEventsPage() {
         </Link>
         .
       </p>
+
+      <form className="flex gap-3 text-sm">
+        <select
+          name="schoolYearId"
+          defaultValue={selectedYear?.id}
+          className="rounded border border-black/15 bg-white px-3 py-2 dark:border-white/15 dark:bg-zinc-900"
+        >
+          {schoolYears.map((y) => (
+            <option key={y.id} value={y.id}>
+              {y.label}
+              {y.isActive ? " (actief)" : ""}
+            </option>
+          ))}
+        </select>
+        <button
+          type="submit"
+          className="rounded border border-black/15 px-3 py-2 dark:border-white/15"
+        >
+          Filteren
+        </button>
+      </form>
 
       <table className="w-full text-left text-sm">
         <thead>

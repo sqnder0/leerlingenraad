@@ -21,7 +21,8 @@ Het volledige plan (datamodel, auth-architectuur, routes, build-order) staat in
 - ✅ **M4 — Attendance + points**: aanwezigheid bevestigen per event (idempotent puntentoekenning),
   admin-only `lib/data/points.ts` (afgedwongen via een eslint-regel), leden-detailpagina met
   ledger + manuele aanpassing, puntendashboard (per schooljaar/klas, admin-only).
-- ⬜ M5 — School-year archiving
+- ✅ **M5 — School-year archiving**: `/admin/school-years` (archiveer huidig & start nieuw
+  jaar, geen data verwijderd), schooljaar-selector op events en puntendashboard.
 - ⬜ M6 — Vrijroosteren-rapport
 - ⬜ M7 — Polish/hardening
 - ⬜ M8 — Deploy (Dokploy)

@@ -1,0 +1,47 @@
+import { prisma } from "@/lib/prisma";
+import { StartSchoolYearForm } from "./start-form";
+
+export default async function SchoolYearsPage() {
+  const schoolYears = await prisma.schoolYear.findMany({ orderBy: { startsAt: "desc" } });
+  const active = schoolYears.find((y) => y.isActive);
+
+  return (
+    <div className="flex flex-1 flex-col gap-6 p-6">
+      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Schooljaren</h1>
+
+      <ul className="flex flex-col divide-y divide-black/5 dark:divide-white/5">
+        {schoolYears.map((y) => (
+          <li key={y.id} className="flex items-center justify-between py-2 text-sm">
+            <span>{y.label}</span>
+            <span className="text-zinc-500">
+              {new Intl.DateTimeFormat("nl-BE").format(y.startsAt)} –{" "}
+              {new Intl.DateTimeFormat("nl-BE").format(y.endsAt)}
+              {y.isActive && (
+                <span className="ml-2 rounded bg-black/[.06] px-2 py-0.5 text-xs font-medium dark:bg-white/[.08]">
+                  actief
+                </span>
+              )}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="rounded border border-black/10 p-4 dark:border-white/10">
+        <p className="mb-1 font-medium text-black dark:text-zinc-50">
+          Archiveer huidig & start nieuw schooljaar
+        </p>
+        <p className="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
+          {active ? (
+            <>
+              <strong>{active.label}</strong> wordt gearchiveerd (alle data blijft bewaard, enkel
+              read-only). Het nieuwe schooljaar wordt meteen het actieve.
+            </>
+          ) : (
+            "Er is nog geen actief schooljaar."
+          )}
+        </p>
+        <StartSchoolYearForm defaultStartsAt={active ? active.endsAt : undefined} />
+      </div>
+    </div>
+  );
+}
