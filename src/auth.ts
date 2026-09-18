@@ -5,6 +5,7 @@ import { z } from "zod";
 import { authConfig } from "@/auth.config";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/password";
+import { isLockedOut, recordFailedAttempt, clearAttempts } from "@/lib/rate-limit";
 
 const credentialsSchema = z.object({
   username: z.string().min(1),
@@ -29,14 +30,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const parsed = credentialsSchema.safeParse(rawCredentials);
         if (!parsed.success) return null;
         const { username, password } = parsed.data;
+        const key = username.toLowerCase();
 
-        const user = await prisma.user.findUnique({
-          where: { username: username.toLowerCase() },
-        });
-        if (!user || !user.passwordHash) return null;
+        // M7 hardening: the fallback-auth password is a guessable last
+        // name by design (plan §Confirmed decisions), so throttle
+        // repeated attempts against one account. Deliberately returns
+        // the same generic failure as a wrong password — not revealing
+        // account existence or lockout state is itself good practice.
+        if (isLockedOut(key)) return null;
+
+        const user = await prisma.user.findUnique({ where: { username: key } });
+        if (!user || !user.passwordHash) {
+          recordFailedAttempt(key);
+          return null;
+        }
 
         const valid = await verifyPassword(user.passwordHash, password);
-        if (!valid) return null;
+        if (!valid) {
+          recordFailedAttempt(key);
+          return null;
+        }
+        clearAttempts(key);
 
         return {
           id: user.id,

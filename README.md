@@ -25,7 +25,9 @@ Het volledige plan (datamodel, auth-architectuur, routes, build-order) staat in
   jaar, geen data verwijderd), schooljaar-selector op events en puntendashboard.
 - ✅ **M6 — Vrijroosteren-rapport**: `/admin/vrijroosteren`, gegroepeerd per datum, printbaar
   (`print:hidden` op de UI-chrome) en exporteerbaar als CSV via een aparte route handler.
-- ⬜ M7 — Polish/hardening
+- ✅ **M7 — Polish/hardening**: login-throttling (5 pogingen/15 min per gebruikersnaam), Vitest
+  (gating + puntentoekenning-idempotentie), mobielvriendelijke tabellen/lijsten/header,
+  ontbrekende lege-staten, `lang="nl"`.
 - ⬜ M8 — Deploy (Dokploy)
 - ⬜ M9 — Smartschool OAuth (geblokkeerd op extern: school moet OAuth-app registreren)
 
@@ -53,6 +55,7 @@ Overige scripts:
 pnpm lint           # ESLint
 pnpm format         # Prettier — schrijft wijzigingen weg
 pnpm format:check   # Prettier — controleert zonder te schrijven
+pnpm test           # Vitest (gating + puntentoekenning-idempotentie)
 pnpm build          # productiebuild
 ```
 

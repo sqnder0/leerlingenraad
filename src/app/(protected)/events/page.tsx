@@ -33,7 +33,10 @@ export default async function EventsPage() {
           const mySignup = event.signups[0];
           return (
             <li key={event.id} className="py-3">
-              <Link href={`/events/${event.id}`} className="flex items-center justify-between">
+              <Link
+                href={`/events/${event.id}`}
+                className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
+              >
                 <div>
                   <p className="font-medium text-black dark:text-zinc-50">{event.title}</p>
                   <p className="text-sm text-zinc-600 dark:text-zinc-400">

@@ -104,26 +104,28 @@ export default async function VrijroosterenPage({
         Array.from(groups.entries()).map(([date, dateRows]) => (
           <div key={date} className="break-inside-avoid">
             <p className="mb-1 font-medium capitalize text-black dark:text-zinc-50">{date}</p>
-            <table className="mb-4 w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-black/10 text-zinc-500 dark:border-white/10 print:text-black">
-                  <th className="py-1 pr-4">Naam</th>
-                  <th className="py-1 pr-4">Klas</th>
-                  <th className="py-1 pr-4">Event</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dateRows.map((row, i) => (
-                  <tr key={i} className="border-b border-black/5 dark:border-white/5">
-                    <td className="py-1 pr-4">
-                      {row.firstName} {row.lastName}
-                    </td>
-                    <td className="py-1 pr-4">{row.classGroup ?? "—"}</td>
-                    <td className="py-1 pr-4">{row.eventTitle}</td>
+            <div className="overflow-x-auto">
+              <table className="mb-4 w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-black/10 text-zinc-500 dark:border-white/10 print:text-black">
+                    <th className="py-1 pr-4">Naam</th>
+                    <th className="py-1 pr-4">Klas</th>
+                    <th className="py-1 pr-4">Event</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {dateRows.map((row, i) => (
+                    <tr key={i} className="border-b border-black/5 dark:border-white/5">
+                      <td className="py-1 pr-4">
+                        {row.firstName} {row.lastName}
+                      </td>
+                      <td className="py-1 pr-4">{row.classGroup ?? "—"}</td>
+                      <td className="py-1 pr-4">{row.eventTitle}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         ))
       )}

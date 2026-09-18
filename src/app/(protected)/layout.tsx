@@ -8,8 +8,8 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="flex items-center justify-between border-b border-black/10 px-4 py-3 print:hidden dark:border-white/10">
-        <nav className="flex gap-4 text-sm">
+      <header className="flex flex-col gap-2 border-b border-black/10 px-4 py-3 print:hidden sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
+        <nav className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
           <Link href="/dashboard">Dashboard</Link>
           <Link href="/events">Agenda</Link>
           <Link href="/my/signups">Mijn aanmeldingen</Link>
@@ -17,7 +17,7 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
         </nav>
         <form action={logout} className="flex items-center gap-3">
           <span className="text-sm text-zinc-600 dark:text-zinc-400">
-            {user.firstName} {user.lastName}
+            {user.firstName} <span className="hidden sm:inline">{user.lastName}</span>
           </span>
           <button type="submit" className="text-sm underline underline-offset-2">
             Uitloggen

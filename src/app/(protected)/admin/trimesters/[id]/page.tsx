@@ -65,35 +65,37 @@ export default async function TrimesterDetailPage({ params }: { params: Promise<
         {events.length === 0 ? (
           <p className="text-sm text-zinc-500">Nog geen rooster gegenereerd.</p>
         ) : (
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-black/10 text-zinc-500 dark:border-white/10">
-                <th className="py-2 pr-4">Datum</th>
-                <th className="py-2 pr-4">Event</th>
-                <th className="py-2 pr-4">Toegewezen</th>
-              </tr>
-            </thead>
-            <tbody>
-              {events.map((event) => (
-                <tr key={event.id} className="border-b border-black/5 dark:border-white/5">
-                  <td className="py-2 pr-4">
-                    {new Intl.DateTimeFormat("nl-BE", {
-                      weekday: "short",
-                      day: "numeric",
-                      month: "short",
-                    }).format(event.startAt)}
-                  </td>
-                  <td className="py-2 pr-4">{event.title}</td>
-                  <td className="py-2 pr-4">
-                    {event.signups
-                      .filter((s) => s.response === "GOING")
-                      .map((s) => `${s.user.firstName} ${s.user.lastName}`)
-                      .join(", ") || "—"}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-black/10 text-zinc-500 dark:border-white/10">
+                  <th className="py-2 pr-4">Datum</th>
+                  <th className="py-2 pr-4">Event</th>
+                  <th className="py-2 pr-4">Toegewezen</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {events.map((event) => (
+                  <tr key={event.id} className="border-b border-black/5 dark:border-white/5">
+                    <td className="py-2 pr-4">
+                      {new Intl.DateTimeFormat("nl-BE", {
+                        weekday: "short",
+                        day: "numeric",
+                        month: "short",
+                      }).format(event.startAt)}
+                    </td>
+                    <td className="py-2 pr-4">{event.title}</td>
+                    <td className="py-2 pr-4">
+                      {event.signups
+                        .filter((s) => s.response === "GOING")
+                        .map((s) => `${s.user.firstName} ${s.user.lastName}`)
+                        .join(", ") || "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

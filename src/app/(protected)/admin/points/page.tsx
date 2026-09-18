@@ -68,28 +68,30 @@ export default async function PointsPage({
       {!selectedYear ? (
         <p className="text-sm text-zinc-500">Geen schooljaar ingesteld.</p>
       ) : (
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-black/10 text-zinc-500 dark:border-white/10">
-              <th className="py-2 pr-4">Naam</th>
-              <th className="py-2 pr-4">Klas</th>
-              <th className="py-2 pr-4">Balans</th>
-            </tr>
-          </thead>
-          <tbody>
-            {balances.map((m) => (
-              <tr key={m.id} className="border-b border-black/5 dark:border-white/5">
-                <td className="py-2 pr-4">
-                  <Link href={`/admin/members/${m.id}`} className="underline underline-offset-2">
-                    {m.firstName} {m.lastName}
-                  </Link>
-                </td>
-                <td className="py-2 pr-4">{m.classGroup ?? "—"}</td>
-                <td className="py-2 pr-4">{m.balance}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-black/10 text-zinc-500 dark:border-white/10">
+                <th className="py-2 pr-4">Naam</th>
+                <th className="py-2 pr-4">Klas</th>
+                <th className="py-2 pr-4">Balans</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {balances.map((m) => (
+                <tr key={m.id} className="border-b border-black/5 dark:border-white/5">
+                  <td className="py-2 pr-4">
+                    <Link href={`/admin/members/${m.id}`} className="underline underline-offset-2">
+                      {m.firstName} {m.lastName}
+                    </Link>
+                  </td>
+                  <td className="py-2 pr-4">{m.classGroup ?? "—"}</td>
+                  <td className="py-2 pr-4">{m.balance}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

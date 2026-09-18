@@ -44,7 +44,10 @@ export default async function DashboardPage() {
           <ul className="flex flex-col divide-y divide-black/5 dark:divide-white/5">
             {upcoming.map((s) => (
               <li key={s.id} className="py-2">
-                <Link href={`/events/${s.eventId}`} className="flex items-center justify-between">
+                <Link
+                  href={`/events/${s.eventId}`}
+                  className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
+                >
                   <span>{s.event.title}</span>
                   <span className="text-sm text-zinc-500">
                     {new Intl.DateTimeFormat("nl-BE", DATE_FORMAT).format(s.event.startAt)}

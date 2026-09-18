@@ -29,7 +29,10 @@ export default async function MySignupsPage() {
       <ul className="flex flex-col divide-y divide-black/5 dark:divide-white/5">
         {signups.map((s) => (
           <li key={s.id} className="py-3">
-            <Link href={`/events/${s.eventId}`} className="flex items-center justify-between">
+            <Link
+              href={`/events/${s.eventId}`}
+              className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
+            >
               <div>
                 <p className="font-medium text-black dark:text-zinc-50">{s.event.title}</p>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">

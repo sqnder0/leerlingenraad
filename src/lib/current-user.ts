@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { resolveApprovedUserGate, resolveAdminGate } from "@/lib/gating";
 
 // Node-runtime layer of the two-layer gating in docs/plan.md §2: a fresh
 // Prisma lookup on every call, never trusting the JWT for status/role.
@@ -15,10 +16,9 @@ export async function getCurrentUser() {
 /** Used by app/(protected)/layout.tsx. Redirects PENDING/REJECTED users. */
 export async function requireApprovedUser() {
   const user = await getCurrentUser();
-  if (!user) redirect("/login");
-  if (user.status === "PENDING") redirect("/pending");
-  if (user.status === "REJECTED") redirect("/rejected");
-  return user;
+  const gate = resolveApprovedUserGate(user);
+  if (gate) redirect(gate);
+  return user!;
 }
 
 /**
@@ -27,7 +27,8 @@ export async function requireApprovedUser() {
  * with `await requireAdmin()`").
  */
 export async function requireAdmin() {
-  const user = await requireApprovedUser();
-  if (user.role !== "ADMIN") redirect("/dashboard");
-  return user;
+  const user = await getCurrentUser();
+  const gate = resolveAdminGate(user);
+  if (gate) redirect(gate);
+  return user!;
 }

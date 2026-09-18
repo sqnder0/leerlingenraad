@@ -42,30 +42,34 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
         {ledger.length === 0 ? (
           <p className="text-sm text-zinc-500">Nog geen puntenhistoriek.</p>
         ) : (
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-black/10 text-zinc-500 dark:border-white/10">
-                <th className="py-2 pr-4">Datum</th>
-                <th className="py-2 pr-4">Reden</th>
-                <th className="py-2 pr-4">Door</th>
-                <th className="py-2 pr-4">Punten</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ledger.map((entry) => (
-                <tr key={entry.id} className="border-b border-black/5 dark:border-white/5">
-                  <td className="py-2 pr-4">
-                    {new Intl.DateTimeFormat("nl-BE").format(entry.createdAt)}
-                  </td>
-                  <td className="py-2 pr-4">{entry.reason}</td>
-                  <td className="py-2 pr-4">
-                    {entry.createdBy.firstName} {entry.createdBy.lastName}
-                  </td>
-                  <td className="py-2 pr-4">{entry.delta > 0 ? `+${entry.delta}` : entry.delta}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-black/10 text-zinc-500 dark:border-white/10">
+                  <th className="py-2 pr-4">Datum</th>
+                  <th className="py-2 pr-4">Reden</th>
+                  <th className="py-2 pr-4">Door</th>
+                  <th className="py-2 pr-4">Punten</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {ledger.map((entry) => (
+                  <tr key={entry.id} className="border-b border-black/5 dark:border-white/5">
+                    <td className="py-2 pr-4">
+                      {new Intl.DateTimeFormat("nl-BE").format(entry.createdAt)}
+                    </td>
+                    <td className="py-2 pr-4">{entry.reason}</td>
+                    <td className="py-2 pr-4">
+                      {entry.createdBy.firstName} {entry.createdBy.lastName}
+                    </td>
+                    <td className="py-2 pr-4">
+                      {entry.delta > 0 ? `+${entry.delta}` : entry.delta}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

@@ -26,38 +26,44 @@ export default async function AdminSeriesPage() {
         .
       </p>
 
-      <table className="w-full text-left text-sm">
-        <thead>
-          <tr className="border-b border-black/10 text-zinc-500 dark:border-white/10">
-            <th className="py-2 pr-4">Titel</th>
-            <th className="py-2 pr-4">Dag</th>
-            <th className="py-2 pr-4">Tijd</th>
-            <th className="py-2 pr-4">Personen</th>
-            <th className="py-2 pr-4">Punten</th>
-            <th className="py-2 pr-4" />
-          </tr>
-        </thead>
-        <tbody>
-          {series.map((s) => (
-            <tr key={s.id} className="border-b border-black/5 dark:border-white/5">
-              <td className="py-2 pr-4">{s.title}</td>
-              <td className="py-2 pr-4">{DAYS[s.dayOfWeek]}</td>
-              <td className="py-2 pr-4">
-                {s.startTime}–{s.endTime}
-              </td>
-              <td className="py-2 pr-4">{s.membersNeeded}</td>
-              <td className="py-2 pr-4">{s.pointValue}</td>
-              <td className="py-2 pr-4">
-                <form action={toggleSeriesActive.bind(null, s.id, !s.isActive)}>
-                  <button type="submit" className="underline underline-offset-2">
-                    {s.isActive ? "Deactiveren" : "Activeren"}
-                  </button>
-                </form>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {series.length === 0 ? (
+        <p className="text-sm text-zinc-500">Nog geen terugkerende events aangemaakt.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-black/10 text-zinc-500 dark:border-white/10">
+                <th className="py-2 pr-4">Titel</th>
+                <th className="py-2 pr-4">Dag</th>
+                <th className="py-2 pr-4">Tijd</th>
+                <th className="py-2 pr-4">Personen</th>
+                <th className="py-2 pr-4">Punten</th>
+                <th className="py-2 pr-4" />
+              </tr>
+            </thead>
+            <tbody>
+              {series.map((s) => (
+                <tr key={s.id} className="border-b border-black/5 dark:border-white/5">
+                  <td className="py-2 pr-4">{s.title}</td>
+                  <td className="py-2 pr-4">{DAYS[s.dayOfWeek]}</td>
+                  <td className="py-2 pr-4">
+                    {s.startTime}–{s.endTime}
+                  </td>
+                  <td className="py-2 pr-4">{s.membersNeeded}</td>
+                  <td className="py-2 pr-4">{s.pointValue}</td>
+                  <td className="py-2 pr-4">
+                    <form action={toggleSeriesActive.bind(null, s.id, !s.isActive)}>
+                      <button type="submit" className="underline underline-offset-2">
+                        {s.isActive ? "Deactiveren" : "Activeren"}
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
