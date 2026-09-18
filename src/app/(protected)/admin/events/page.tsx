@@ -26,7 +26,7 @@ export default async function AdminEventsPage({
         <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">Events</h1>
         <Link
           href="/admin/events/new"
-          className="rounded bg-brand-600 px-3 py-1.5 text-sm font-medium text-white dark:bg-brand-500 dark:text-white"
+          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 hover:shadow dark:bg-brand-500 dark:hover:bg-brand-400"
         >
           Nieuw event
         </Link>
@@ -48,7 +48,7 @@ export default async function AdminEventsPage({
         <select
           name="schoolYearId"
           defaultValue={selectedYear?.id}
-          className="rounded border border-brand-600/25 bg-white px-3 py-2 dark:border-brand-400/25 dark:bg-brand-950"
+          className="rounded-lg border border-brand-600/25 bg-white px-3 py-2 shadow-sm outline-none transition-shadow focus:border-brand-600 focus:ring-2 focus:ring-brand-500/30 dark:border-brand-400/25 dark:bg-brand-950"
         >
           {schoolYears.map((y) => (
             <option key={y.id} value={y.id}>
@@ -59,7 +59,7 @@ export default async function AdminEventsPage({
         </select>
         <button
           type="submit"
-          className="rounded border border-brand-600/25 px-3 py-2 dark:border-brand-400/25"
+          className="rounded-lg border border-brand-600/30 px-4 py-2 transition-colors hover:bg-brand-600/5 dark:border-brand-400/30 dark:hover:bg-brand-400/5"
         >
           Filteren
         </button>
@@ -83,7 +83,7 @@ export default async function AdminEventsPage({
               {events.map((event) => (
                 <tr
                   key={event.id}
-                  className="border-b border-brand-600/10 dark:border-brand-400/10"
+                  className="border-b border-brand-600/10 transition-colors hover:bg-brand-600/5 dark:border-brand-400/10 dark:hover:bg-brand-400/5"
                 >
                   <td className="py-2 pr-4">
                     {event.title}

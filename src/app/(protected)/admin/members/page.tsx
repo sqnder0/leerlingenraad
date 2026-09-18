@@ -13,7 +13,7 @@ export default async function AdminMembersPage() {
         <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">Leden</h1>
         <Link
           href="/admin/members/new"
-          className="rounded bg-brand-600 px-3 py-1.5 text-sm font-medium text-white dark:bg-brand-500 dark:text-white"
+          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 hover:shadow dark:bg-brand-500 dark:hover:bg-brand-400"
         >
           Nieuw lid
         </Link>
@@ -33,7 +33,10 @@ export default async function AdminMembersPage() {
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user.id} className="border-b border-brand-600/10 dark:border-brand-400/10">
+              <tr
+                key={user.id}
+                className="border-b border-brand-600/10 transition-colors hover:bg-brand-600/5 dark:border-brand-400/10 dark:hover:bg-brand-400/5"
+              >
                 <td className="py-2 pr-4">
                   <Link href={`/admin/members/${user.id}`} className="underline underline-offset-2">
                     {user.firstName} {user.lastName}

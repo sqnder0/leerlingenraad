@@ -58,9 +58,12 @@ export default async function DashboardPage() {
             Geen toegewezen beurten gepland.
           </p>
         ) : (
-          <ul className="flex flex-col divide-y divide-brand-600/10 dark:divide-brand-400/10">
+          <ul className="flex flex-col gap-1.5">
             {expected.map((signup) => (
-              <li key={signup.id} className="flex items-center justify-between gap-3 py-2">
+              <li
+                key={signup.id}
+                className="flex items-center justify-between gap-3 rounded-lg border border-brand-600/10 px-3 py-2 transition-colors hover:border-brand-600/25 hover:bg-brand-600/5 dark:border-brand-400/10 dark:hover:border-brand-400/25 dark:hover:bg-brand-400/5"
+              >
                 <Link href={`/events/${signup.eventId}`} className="flex-1">
                   <p className="font-medium text-brand-900 dark:text-brand-50">
                     {signup.event.title}
@@ -70,7 +73,7 @@ export default async function DashboardPage() {
                 <form action={declineAssignment.bind(null, signup.id)}>
                   <button
                     type="submit"
-                    className="rounded border border-brand-600/25 px-3 py-1.5 text-sm whitespace-nowrap dark:border-brand-400/25"
+                    className="rounded-lg border border-brand-600/30 px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors hover:bg-brand-600/5 dark:border-brand-400/30 dark:hover:bg-brand-400/5"
                   >
                     Ik kan niet
                   </button>
@@ -86,11 +89,14 @@ export default async function DashboardPage() {
         {optInEvents.length === 0 ? (
           <p className="text-sm text-zinc-600 dark:text-zinc-400">Nog geen events gepland.</p>
         ) : (
-          <ul className="flex flex-col divide-y divide-brand-600/10 dark:divide-brand-400/10">
+          <ul className="flex flex-col gap-1.5">
             {optInEvents.map((event) => {
               const response = event.signups[0]?.response;
               return (
-                <li key={event.id} className="flex items-center justify-between gap-3 py-2">
+                <li
+                  key={event.id}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-brand-600/10 px-3 py-2 transition-colors hover:border-brand-600/25 hover:bg-brand-600/5 dark:border-brand-400/10 dark:hover:border-brand-400/25 dark:hover:bg-brand-400/5"
+                >
                   <Link href={`/events/${event.id}`} className="flex-1">
                     <p className="font-medium text-brand-900 dark:text-brand-50">{event.title}</p>
                     <p className="text-sm text-zinc-500">{formatWhen(event.startAt)}</p>
@@ -99,10 +105,10 @@ export default async function DashboardPage() {
                     <form action={rsvp.bind(null, event.id, "GOING")}>
                       <button
                         type="submit"
-                        className={`rounded px-3 py-1.5 text-sm font-medium whitespace-nowrap ${
+                        className={`rounded-lg px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
                           response === "GOING"
-                            ? "bg-brand-600 text-white dark:bg-brand-500 dark:text-white"
-                            : "border border-brand-600/25 dark:border-brand-400/25"
+                            ? "bg-brand-600 text-white shadow-sm hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400"
+                            : "border border-brand-600/30 hover:bg-brand-600/5 dark:border-brand-400/30 dark:hover:bg-brand-400/5"
                         }`}
                       >
                         Ik kom
@@ -111,10 +117,10 @@ export default async function DashboardPage() {
                     <form action={rsvp.bind(null, event.id, "NOT_GOING")}>
                       <button
                         type="submit"
-                        className={`rounded px-3 py-1.5 text-sm font-medium whitespace-nowrap ${
+                        className={`rounded-lg px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
                           response === "NOT_GOING"
-                            ? "bg-brand-600 text-white dark:bg-brand-500 dark:text-white"
-                            : "border border-brand-600/25 dark:border-brand-400/25"
+                            ? "bg-brand-600 text-white shadow-sm hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400"
+                            : "border border-brand-600/30 hover:bg-brand-600/5 dark:border-brand-400/30 dark:hover:bg-brand-400/5"
                         }`}
                       >
                         Ik kom niet

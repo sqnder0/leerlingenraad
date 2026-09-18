@@ -67,7 +67,7 @@ export default async function EventDetailPage({
           <form action={declineAssignment.bind(null, mySignup.id)}>
             <button
               type="submit"
-              className="rounded border border-brand-600/25 px-3 py-1.5 text-sm dark:border-brand-400/25"
+              className="rounded-lg border border-brand-600/30 px-4 py-2 text-sm font-medium transition-colors hover:bg-brand-600/5 dark:border-brand-400/30 dark:hover:bg-brand-400/5"
             >
               Ik kan niet
             </button>
@@ -80,10 +80,10 @@ export default async function EventDetailPage({
           <form action={rsvp.bind(null, event.id, "GOING")}>
             <button
               type="submit"
-              className={`rounded px-3 py-1.5 text-sm font-medium ${
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 mySignup?.response === "GOING"
-                  ? "bg-brand-600 text-white dark:bg-brand-500 dark:text-white"
-                  : "border border-brand-600/25 dark:border-brand-400/25"
+                  ? "bg-brand-600 text-white shadow-sm hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400"
+                  : "border border-brand-600/30 hover:bg-brand-600/5 dark:border-brand-400/30 dark:hover:bg-brand-400/5"
               }`}
             >
               Ik kom
@@ -92,10 +92,10 @@ export default async function EventDetailPage({
           <form action={rsvp.bind(null, event.id, "NOT_GOING")}>
             <button
               type="submit"
-              className={`rounded px-3 py-1.5 text-sm font-medium ${
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 mySignup?.response === "NOT_GOING"
-                  ? "bg-brand-600 text-white dark:bg-brand-500 dark:text-white"
-                  : "border border-brand-600/25 dark:border-brand-400/25"
+                  ? "bg-brand-600 text-white shadow-sm hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400"
+                  : "border border-brand-600/30 hover:bg-brand-600/5 dark:border-brand-400/30 dark:hover:bg-brand-400/5"
               }`}
             >
               Ik kom niet

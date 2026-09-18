@@ -63,7 +63,7 @@ export default async function VrijroosterenPage({
             name="start"
             type="date"
             defaultValue={toDateInputValue(startDate)}
-            className="rounded border border-brand-600/25 bg-white px-3 py-2 dark:border-brand-400/25 dark:bg-brand-950"
+            className="rounded-lg border border-brand-600/25 bg-white px-3 py-2 shadow-sm outline-none transition-shadow focus:border-brand-600 focus:ring-2 focus:ring-brand-500/30 dark:border-brand-400/25 dark:bg-brand-950"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -75,18 +75,18 @@ export default async function VrijroosterenPage({
             name="end"
             type="date"
             defaultValue={toDateInputValue(endDate)}
-            className="rounded border border-brand-600/25 bg-white px-3 py-2 dark:border-brand-400/25 dark:bg-brand-950"
+            className="rounded-lg border border-brand-600/25 bg-white px-3 py-2 shadow-sm outline-none transition-shadow focus:border-brand-600 focus:ring-2 focus:ring-brand-500/30 dark:border-brand-400/25 dark:bg-brand-950"
           />
         </div>
         <button
           type="submit"
-          className="rounded border border-brand-600/25 px-3 py-2 dark:border-brand-400/25"
+          className="rounded-lg border border-brand-600/30 px-4 py-2 transition-colors hover:bg-brand-600/5 dark:border-brand-400/30 dark:hover:bg-brand-400/5"
         >
           Filteren
         </button>
         <a
           href={exportHref}
-          className="rounded border border-brand-600/25 px-3 py-2 dark:border-brand-400/25"
+          className="rounded-lg border border-brand-600/30 px-4 py-2 transition-colors hover:bg-brand-600/5 dark:border-brand-400/30 dark:hover:bg-brand-400/5"
         >
           Exporteer CSV
         </a>
@@ -115,7 +115,10 @@ export default async function VrijroosterenPage({
                 </thead>
                 <tbody>
                   {dateRows.map((row, i) => (
-                    <tr key={i} className="border-b border-brand-600/10 dark:border-brand-400/10">
+                    <tr
+                      key={i}
+                      className="border-b border-brand-600/10 transition-colors hover:bg-brand-600/5 dark:border-brand-400/10 dark:hover:bg-brand-400/5"
+                    >
                       <td className="py-1 pr-4">
                         {row.firstName} {row.lastName}
                       </td>

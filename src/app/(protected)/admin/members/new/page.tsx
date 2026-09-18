@@ -17,7 +17,7 @@ export default function NewMemberPage() {
           Geef deze inloggegevens door aan het lid, ze worden hierna niet meer getoond. Het account
           staat nog op <strong>PENDING</strong> tot je het goedkeurt op de ledenlijst.
         </p>
-        <dl className="w-fit rounded border border-brand-600/15 p-4 text-sm dark:border-brand-400/15">
+        <dl className="w-fit rounded-xl border border-brand-600/15 bg-brand-50/50 p-4 text-sm dark:border-brand-400/15 dark:bg-brand-950/40">
           <dt className="text-zinc-500">Gebruikersnaam</dt>
           <dd className="mb-2 font-mono">{state.username}</dd>
           <dt className="text-zinc-500">Wachtwoord</dt>
@@ -48,7 +48,7 @@ export default function NewMemberPage() {
             id="firstName"
             name="firstName"
             required
-            className="rounded border border-brand-600/25 bg-white px-3 py-2 text-sm dark:border-brand-400/25 dark:bg-brand-950"
+            className="rounded-lg border border-brand-600/25 bg-white px-3 py-2 text-sm shadow-sm outline-none transition-shadow focus:border-brand-600 focus:ring-2 focus:ring-brand-500/30 dark:border-brand-400/25 dark:bg-brand-950"
           />
         </div>
 
@@ -60,7 +60,7 @@ export default function NewMemberPage() {
             id="lastName"
             name="lastName"
             required
-            className="rounded border border-brand-600/25 bg-white px-3 py-2 text-sm dark:border-brand-400/25 dark:bg-brand-950"
+            className="rounded-lg border border-brand-600/25 bg-white px-3 py-2 text-sm shadow-sm outline-none transition-shadow focus:border-brand-600 focus:ring-2 focus:ring-brand-500/30 dark:border-brand-400/25 dark:bg-brand-950"
           />
         </div>
 
@@ -72,7 +72,7 @@ export default function NewMemberPage() {
             id="classGroup"
             name="classGroup"
             placeholder="bv. 5A"
-            className="rounded border border-brand-600/25 bg-white px-3 py-2 text-sm dark:border-brand-400/25 dark:bg-brand-950"
+            className="rounded-lg border border-brand-600/25 bg-white px-3 py-2 text-sm shadow-sm outline-none transition-shadow focus:border-brand-600 focus:ring-2 focus:ring-brand-500/30 dark:border-brand-400/25 dark:bg-brand-950"
           />
         </div>
 
@@ -84,7 +84,7 @@ export default function NewMemberPage() {
             id="role"
             name="role"
             defaultValue="MEMBER"
-            className="rounded border border-brand-600/25 bg-white px-3 py-2 text-sm dark:border-brand-400/25 dark:bg-brand-950"
+            className="rounded-lg border border-brand-600/25 bg-white px-3 py-2 text-sm shadow-sm outline-none transition-shadow focus:border-brand-600 focus:ring-2 focus:ring-brand-500/30 dark:border-brand-400/25 dark:bg-brand-950"
           >
             <option value="MEMBER">Lid</option>
             <option value="ADMIN">Beheerder</option>
@@ -98,7 +98,7 @@ export default function NewMemberPage() {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded bg-brand-600 px-3 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-brand-500 dark:text-white"
+          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 hover:shadow disabled:pointer-events-none disabled:opacity-50 dark:bg-brand-500 dark:hover:bg-brand-400"
         >
           {isPending ? "Bezig…" : "Aanmaken"}
         </button>

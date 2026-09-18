@@ -55,7 +55,10 @@ export default async function TrimesterDetailPage({ params }: { params: Promise<
         <p className="mb-2 text-sm font-medium text-zinc-500">Eerlijkheid (aantal beurten)</p>
         <ul className="flex flex-wrap gap-2 text-sm">
           {pool.map((u) => (
-            <li key={u.id} className="rounded bg-brand-600/10 px-2 py-1 dark:bg-brand-400/15">
+            <li
+              key={u.id}
+              className="rounded-full bg-brand-600/10 px-2.5 py-1 text-sm dark:bg-brand-400/15"
+            >
               {u.firstName}: {counts.get(u.id) ?? 0}
             </li>
           ))}
@@ -80,7 +83,7 @@ export default async function TrimesterDetailPage({ params }: { params: Promise<
                 {events.map((event) => (
                   <tr
                     key={event.id}
-                    className="border-b border-brand-600/10 dark:border-brand-400/10"
+                    className="border-b border-brand-600/10 transition-colors hover:bg-brand-600/5 dark:border-brand-400/10 dark:hover:bg-brand-400/5"
                   >
                     <td className="py-2 pr-4">
                       {new Intl.DateTimeFormat("nl-BE", {

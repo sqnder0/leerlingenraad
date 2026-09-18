@@ -10,7 +10,7 @@ export default async function AdminTrimestersPage() {
         <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">Trimesters</h1>
         <Link
           href="/admin/trimesters/new"
-          className="rounded bg-brand-600 px-3 py-1.5 text-sm font-medium text-white dark:bg-brand-500 dark:text-white"
+          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 hover:shadow dark:bg-brand-500 dark:hover:bg-brand-400"
         >
           Nieuw trimester
         </Link>
@@ -19,12 +19,12 @@ export default async function AdminTrimestersPage() {
       {trimesters.length === 0 ? (
         <p className="text-sm text-zinc-500">Nog geen trimesters aangemaakt.</p>
       ) : (
-        <ul className="flex flex-col divide-y divide-brand-600/10 dark:divide-brand-400/10">
+        <ul className="flex flex-col gap-1.5">
           {trimesters.map((t) => (
-            <li key={t.id} className="py-3">
+            <li key={t.id}>
               <Link
                 href={`/admin/trimesters/${t.id}`}
-                className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-1 rounded-lg border border-brand-600/10 px-3 py-3 transition-colors hover:border-brand-600/25 hover:bg-brand-600/5 sm:flex-row sm:items-center sm:justify-between dark:border-brand-400/10 dark:hover:border-brand-400/25 dark:hover:bg-brand-400/5"
               >
                 <span className="font-medium text-brand-900 dark:text-brand-50">{t.label}</span>
                 <span className="text-sm text-zinc-500">

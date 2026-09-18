@@ -10,7 +10,7 @@ export default async function AdminHomePage() {
 
       <Link
         href="/admin/members"
-        className="rounded border border-brand-600/15 p-4 hover:bg-brand-600/5 dark:border-brand-400/15 dark:hover:bg-brand-400/5"
+        className="rounded-xl border border-brand-600/15 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-600/30 hover:bg-brand-600/5 hover:shadow-md dark:border-brand-400/15 dark:hover:border-brand-400/30 dark:hover:bg-brand-400/5"
       >
         <p className="font-medium text-brand-900 dark:text-brand-50">Leden</p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
@@ -22,7 +22,7 @@ export default async function AdminHomePage() {
 
       <Link
         href="/admin/events"
-        className="rounded border border-brand-600/15 p-4 hover:bg-brand-600/5 dark:border-brand-400/15 dark:hover:bg-brand-400/5"
+        className="rounded-xl border border-brand-600/15 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-600/30 hover:bg-brand-600/5 hover:shadow-md dark:border-brand-400/15 dark:hover:border-brand-400/30 dark:hover:bg-brand-400/5"
       >
         <p className="font-medium text-brand-900 dark:text-brand-50">Events</p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">Eenmalige events beheren.</p>
@@ -30,7 +30,7 @@ export default async function AdminHomePage() {
 
       <Link
         href="/admin/series"
-        className="rounded border border-brand-600/15 p-4 hover:bg-brand-600/5 dark:border-brand-400/15 dark:hover:bg-brand-400/5"
+        className="rounded-xl border border-brand-600/15 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-600/30 hover:bg-brand-600/5 hover:shadow-md dark:border-brand-400/15 dark:hover:border-brand-400/30 dark:hover:bg-brand-400/5"
       >
         <p className="font-medium text-brand-900 dark:text-brand-50">Terugkerende events</p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
@@ -40,7 +40,7 @@ export default async function AdminHomePage() {
 
       <Link
         href="/admin/trimesters"
-        className="rounded border border-brand-600/15 p-4 hover:bg-brand-600/5 dark:border-brand-400/15 dark:hover:bg-brand-400/5"
+        className="rounded-xl border border-brand-600/15 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-600/30 hover:bg-brand-600/5 hover:shadow-md dark:border-brand-400/15 dark:hover:border-brand-400/30 dark:hover:bg-brand-400/5"
       >
         <p className="font-medium text-brand-900 dark:text-brand-50">Trimesters</p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
@@ -50,7 +50,7 @@ export default async function AdminHomePage() {
 
       <Link
         href="/admin/school-years"
-        className="rounded border border-brand-600/15 p-4 hover:bg-brand-600/5 dark:border-brand-400/15 dark:hover:bg-brand-400/5"
+        className="rounded-xl border border-brand-600/15 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-600/30 hover:bg-brand-600/5 hover:shadow-md dark:border-brand-400/15 dark:hover:border-brand-400/30 dark:hover:bg-brand-400/5"
       >
         <p className="font-medium text-brand-900 dark:text-brand-50">Schooljaren</p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
@@ -60,7 +60,7 @@ export default async function AdminHomePage() {
 
       <Link
         href="/admin/vrijroosteren"
-        className="rounded border border-brand-600/15 p-4 hover:bg-brand-600/5 dark:border-brand-400/15 dark:hover:bg-brand-400/5"
+        className="rounded-xl border border-brand-600/15 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-600/30 hover:bg-brand-600/5 hover:shadow-md dark:border-brand-400/15 dark:hover:border-brand-400/30 dark:hover:bg-brand-400/5"
       >
         <p className="font-medium text-brand-900 dark:text-brand-50">Vrijroosteren</p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
@@ -70,7 +70,7 @@ export default async function AdminHomePage() {
 
       <Link
         href="/admin/points"
-        className="rounded border border-brand-600/15 p-4 hover:bg-brand-600/5 dark:border-brand-400/15 dark:hover:bg-brand-400/5"
+        className="rounded-xl border border-brand-600/15 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-600/30 hover:bg-brand-600/5 hover:shadow-md dark:border-brand-400/15 dark:hover:border-brand-400/30 dark:hover:bg-brand-400/5"
       >
         <p className="font-medium text-brand-900 dark:text-brand-50">Puntendashboard</p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">

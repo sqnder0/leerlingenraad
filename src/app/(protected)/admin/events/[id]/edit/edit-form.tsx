@@ -5,7 +5,7 @@ import { updateEvent, type EventFormState } from "@/actions/admin/events";
 
 const initialState: EventFormState = { status: "idle" };
 const inputClass =
-  "rounded border border-brand-600/25 bg-white px-3 py-2 text-sm dark:border-brand-400/25 dark:bg-brand-950";
+  "rounded-lg border border-brand-600/25 bg-white px-3 py-2 text-sm shadow-sm outline-none transition-shadow focus:border-brand-600 focus:ring-2 focus:ring-brand-500/30 dark:border-brand-400/25 dark:bg-brand-950";
 
 export function EditEventForm({
   eventId,
@@ -131,7 +131,7 @@ export function EditEventForm({
       <button
         type="submit"
         disabled={isPending}
-        className="rounded bg-brand-600 px-3 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-brand-500 dark:text-white"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 hover:shadow disabled:pointer-events-none disabled:opacity-50 dark:bg-brand-500 dark:hover:bg-brand-400"
       >
         {isPending ? "Bezig…" : "Opslaan"}
       </button>
