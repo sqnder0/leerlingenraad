@@ -91,19 +91,39 @@ Er is geen self-registratie: accounts worden altijd door een beheerder aangemaak
 `/admin/members/new`. Lokaal na het seeden kun je meteen in met de dev-logins hierboven.
 
 **Op een verse productie-omgeving bestaat er dus nog niemand om mee in te loggen.** Daarvoor
-is er een eenmalige bootstrap-route:
+is er een eenmalige bootstrap-route. Zet eerst `BOOTSTRAP_SECRET` als environment variable op
+de Dokploy-app (zelf een willekeurige waarde kiezen), en roep dan éénmalig aan:
+
+macOS/Linux:
 
 ```bash
-curl -X POST https://jouw-domein/api/bootstrap \
+curl -X POST https://leerlingenraad.sqnder.dev/api/bootstrap \
   -H "x-bootstrap-secret: $BOOTSTRAP_SECRET" \
   -H "Content-Type: application/json" \
   -d '{"firstName":"Sander","lastName":"Pelgrims","password":"een-echt-sterk-wachtwoord"}'
 ```
 
-Vereist dat `BOOTSTRAP_SECRET` als environment variable op de Dokploy-app staat (zelf een
-willekeurige waarde kiezen). De route werkt maar één keer: zodra er één gebruiker bestaat,
-geeft ze voorgoed een 403, secret of niet. Nadien kun je die environment variable laten staan
-of verwijderen, dat maakt niet meer uit.
+Windows (PowerShell — `curl` is daar een alias voor `Invoke-WebRequest` met andere syntax, en
+`cmd.exe` behandelt enkele aanhalingstekens niet als string-afbakening, vandaar dit in plaats
+van de curl-versie):
+
+```powershell
+$env:BOOTSTRAP_SECRET = "plak-hier-je-secret"
+
+Invoke-RestMethod -Uri "https://leerlingenraad.sqnder.dev/api/bootstrap" `
+  -Method Post `
+  -Headers @{ "x-bootstrap-secret" = $env:BOOTSTRAP_SECRET } `
+  -ContentType "application/json" `
+  -Body (@{
+    firstName = "Sander"
+    lastName  = "Pelgrims"
+    password  = "een-echt-sterk-wachtwoord"
+  } | ConvertTo-Json)
+```
+
+De route werkt maar één keer: zodra er één gebruiker bestaat, geeft ze voorgoed een 403, secret
+of niet. Nadien kun je die environment variable laten staan of verwijderen, dat maakt niet meer
+uit.
 
 ## Deploy
 
