@@ -20,7 +20,7 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
       <div>
-        <h1 className="text-xl font-semibold text-black dark:text-zinc-50">
+        <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">
           {member.firstName} {member.lastName}
         </h1>
         <p className="text-sm text-zinc-500">
@@ -32,7 +32,7 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
 
       <div>
         <p className="text-sm text-zinc-500">Balans dit schooljaar ({activeSchoolYear.label})</p>
-        <p className="text-2xl font-semibold text-black dark:text-zinc-50">{balance}</p>
+        <p className="text-2xl font-semibold text-brand-900 dark:text-brand-50">{balance}</p>
       </div>
 
       <AdjustmentForm userId={member.id} />
@@ -45,7 +45,7 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-black/10 text-zinc-500 dark:border-white/10">
+                <tr className="border-b border-brand-600/15 text-zinc-500 dark:border-brand-400/15">
                   <th className="py-2 pr-4">Datum</th>
                   <th className="py-2 pr-4">Reden</th>
                   <th className="py-2 pr-4">Door</th>
@@ -54,7 +54,7 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
               </thead>
               <tbody>
                 {ledger.map((entry) => (
-                  <tr key={entry.id} className="border-b border-black/5 dark:border-white/5">
+                  <tr key={entry.id} className="border-b border-brand-600/10 dark:border-brand-400/10">
                     <td className="py-2 pr-4">
                       {new Intl.DateTimeFormat("nl-BE").format(entry.createdAt)}
                     </td>

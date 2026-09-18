@@ -7,9 +7,9 @@ export default async function SchoolYearsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Schooljaren</h1>
+      <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">Schooljaren</h1>
 
-      <ul className="flex flex-col divide-y divide-black/5 dark:divide-white/5">
+      <ul className="flex flex-col divide-y divide-brand-600/10 dark:divide-brand-400/10">
         {schoolYears.map((y) => (
           <li key={y.id} className="flex items-center justify-between py-2 text-sm">
             <span>{y.label}</span>
@@ -17,7 +17,7 @@ export default async function SchoolYearsPage() {
               {new Intl.DateTimeFormat("nl-BE").format(y.startsAt)} –{" "}
               {new Intl.DateTimeFormat("nl-BE").format(y.endsAt)}
               {y.isActive && (
-                <span className="ml-2 rounded bg-black/[.06] px-2 py-0.5 text-xs font-medium dark:bg-white/[.08]">
+                <span className="ml-2 rounded bg-brand-600/10 px-2 py-0.5 text-xs font-medium dark:bg-brand-400/15">
                   actief
                 </span>
               )}
@@ -26,8 +26,8 @@ export default async function SchoolYearsPage() {
         ))}
       </ul>
 
-      <div className="rounded border border-black/10 p-4 dark:border-white/10">
-        <p className="mb-1 font-medium text-black dark:text-zinc-50">
+      <div className="rounded border border-brand-600/15 p-4 dark:border-brand-400/15">
+        <p className="mb-1 font-medium text-brand-900 dark:text-brand-50">
           Archiveer huidig & start nieuw schooljaar
         </p>
         <p className="mb-4 text-sm text-zinc-600 dark:text-zinc-400">

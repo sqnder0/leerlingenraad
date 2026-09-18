@@ -17,12 +17,6 @@ const eventSchema = z.object({
 
 export type EventFormState = { status: "idle" } | { status: "error"; message: string };
 
-async function getActiveSchoolYearId() {
-  const active = await prisma.schoolYear.findFirst({ where: { isActive: true } });
-  if (!active) throw new Error("Geen actief schooljaar ingesteld.");
-  return active.id;
-}
-
 export async function createEvent(
   _prevState: EventFormState,
   formData: FormData,
@@ -42,7 +36,12 @@ export async function createEvent(
     return { status: "error", message: parsed.error.issues[0].message };
   }
 
-  const schoolYearId = await getActiveSchoolYearId();
+  const activeSchoolYear = await prisma.schoolYear.findFirst({ where: { isActive: true } });
+  if (!activeSchoolYear) {
+    return { status: "error", message: "Geen actief schooljaar ingesteld." };
+  }
+  const schoolYearId = activeSchoolYear.id;
+
   await prisma.event.create({
     data: {
       ...parsed.data,

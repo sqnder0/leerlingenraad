@@ -2,7 +2,24 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #16241c;
+}
+
+/* Leerlingenraad Atheneum Keerbergen: white with the school's green tints.
+   Approximated from their public branding (no exact logo hex available) —
+   swap these stops if an exact brand hex is provided. */
+@theme {
+  --color-brand-50: #f1f8f3;
+  --color-brand-100: #dcefe1;
+  --color-brand-200: #b7dfc4;
+  --color-brand-300: #8cc7a1;
+  --color-brand-400: #5eab7c;
+  --color-brand-500: #3f8c5f;
+  --color-brand-600: #2f7249;
+  --color-brand-700: #275d3c;
+  --color-brand-800: #204a31;
+  --color-brand-900: #1a3c28;
+  --color-brand-950: #0e2317;
 }
 
 @theme inline {
@@ -14,8 +31,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0e2317;
+    --foreground: #f1f8f3;
   }
 }
 

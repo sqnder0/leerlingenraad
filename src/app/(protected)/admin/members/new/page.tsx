@@ -12,12 +12,12 @@ export default function NewMemberPage() {
   if (state.status === "success") {
     return (
       <div className="flex flex-1 flex-col gap-4 p-6">
-        <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Lid aangemaakt</h1>
+        <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">Lid aangemaakt</h1>
         <p className="text-zinc-600 dark:text-zinc-400">
           Geef deze inloggegevens door aan het lid, ze worden hierna niet meer getoond. Het account
           staat nog op <strong>PENDING</strong> tot je het goedkeurt op de ledenlijst.
         </p>
-        <dl className="w-fit rounded border border-black/10 p-4 text-sm dark:border-white/10">
+        <dl className="w-fit rounded border border-brand-600/15 p-4 text-sm dark:border-brand-400/15">
           <dt className="text-zinc-500">Gebruikersnaam</dt>
           <dd className="mb-2 font-mono">{state.username}</dd>
           <dt className="text-zinc-500">Wachtwoord</dt>
@@ -37,7 +37,7 @@ export default function NewMemberPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Nieuw lid</h1>
+      <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">Nieuw lid</h1>
 
       <form action={formAction} className="flex max-w-sm flex-col gap-4">
         <div className="flex flex-col gap-1">
@@ -48,7 +48,7 @@ export default function NewMemberPage() {
             id="firstName"
             name="firstName"
             required
-            className="rounded border border-black/15 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-zinc-900"
+            className="rounded border border-brand-600/25 bg-white px-3 py-2 text-sm dark:border-brand-400/25 dark:bg-brand-950"
           />
         </div>
 
@@ -60,7 +60,7 @@ export default function NewMemberPage() {
             id="lastName"
             name="lastName"
             required
-            className="rounded border border-black/15 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-zinc-900"
+            className="rounded border border-brand-600/25 bg-white px-3 py-2 text-sm dark:border-brand-400/25 dark:bg-brand-950"
           />
         </div>
 
@@ -72,7 +72,7 @@ export default function NewMemberPage() {
             id="classGroup"
             name="classGroup"
             placeholder="bv. 5A"
-            className="rounded border border-black/15 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-zinc-900"
+            className="rounded border border-brand-600/25 bg-white px-3 py-2 text-sm dark:border-brand-400/25 dark:bg-brand-950"
           />
         </div>
 
@@ -84,7 +84,7 @@ export default function NewMemberPage() {
             id="role"
             name="role"
             defaultValue="MEMBER"
-            className="rounded border border-black/15 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-zinc-900"
+            className="rounded border border-brand-600/25 bg-white px-3 py-2 text-sm dark:border-brand-400/25 dark:bg-brand-950"
           >
             <option value="MEMBER">Lid</option>
             <option value="ADMIN">Beheerder</option>
@@ -98,7 +98,7 @@ export default function NewMemberPage() {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded bg-black px-3 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-black"
+          className="rounded bg-brand-600 px-3 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-brand-500 dark:text-white"
         >
           {isPending ? "Bezig…" : "Aanmaken"}
         </button>

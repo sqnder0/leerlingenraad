@@ -5,7 +5,7 @@ export function PrintButton() {
     <button
       type="button"
       onClick={() => window.print()}
-      className="rounded border border-black/15 px-3 py-2 text-sm dark:border-white/15"
+      className="rounded border border-brand-600/25 px-3 py-2 text-sm dark:border-brand-400/25"
     >
       Print
     </button>

@@ -10,7 +10,7 @@ export default function NewEventPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Nieuw event</h1>
+      <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">Nieuw event</h1>
 
       <form action={formAction} className="flex max-w-sm flex-col gap-4">
         <Field label="Titel" name="title" required />
@@ -28,7 +28,7 @@ export default function NewEventPage() {
             id="status"
             name="status"
             defaultValue="DRAFT"
-            className="rounded border border-black/15 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-zinc-900"
+            className="rounded border border-brand-600/25 bg-white px-3 py-2 text-sm dark:border-brand-400/25 dark:bg-brand-950"
           >
             <option value="DRAFT">Concept</option>
             <option value="PUBLISHED">Gepubliceerd</option>
@@ -42,7 +42,7 @@ export default function NewEventPage() {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded bg-black px-3 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-black"
+          className="rounded bg-brand-600 px-3 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-brand-500 dark:text-white"
         >
           {isPending ? "Bezig…" : "Aanmaken"}
         </button>
@@ -67,7 +67,7 @@ function Field({
   defaultValue?: string;
 }) {
   const className =
-    "rounded border border-black/15 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-zinc-900";
+    "rounded border border-brand-600/25 bg-white px-3 py-2 text-sm dark:border-brand-400/25 dark:bg-brand-950";
   return (
     <div className="flex flex-col gap-1">
       <label htmlFor={name} className="text-sm text-zinc-600 dark:text-zinc-400">

@@ -14,7 +14,7 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Event bewerken</h1>
+      <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">Event bewerken</h1>
       <EditEventForm
         eventId={event.id}
         defaultValues={{

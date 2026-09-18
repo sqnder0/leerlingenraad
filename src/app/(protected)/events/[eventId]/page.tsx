@@ -38,7 +38,7 @@ export default async function EventDetailPage({
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
       <div>
-        <h1 className="text-xl font-semibold text-black dark:text-zinc-50">{event.title}</h1>
+        <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">{event.title}</h1>
         <p className="text-zinc-600 dark:text-zinc-400">
           {new Intl.DateTimeFormat("nl-BE", DATE_FORMAT).format(event.startAt)}
           {event.location ? ` · ${event.location}` : ""}
@@ -67,7 +67,7 @@ export default async function EventDetailPage({
           <form action={declineAssignment.bind(null, mySignup.id)}>
             <button
               type="submit"
-              className="rounded border border-black/15 px-3 py-1.5 text-sm dark:border-white/15"
+              className="rounded border border-brand-600/25 px-3 py-1.5 text-sm dark:border-brand-400/25"
             >
               Ik kan niet
             </button>
@@ -82,8 +82,8 @@ export default async function EventDetailPage({
               type="submit"
               className={`rounded px-3 py-1.5 text-sm font-medium ${
                 mySignup?.response === "GOING"
-                  ? "bg-black text-white dark:bg-white dark:text-black"
-                  : "border border-black/15 dark:border-white/15"
+                  ? "bg-brand-600 text-white dark:bg-brand-500 dark:text-white"
+                  : "border border-brand-600/25 dark:border-brand-400/25"
               }`}
             >
               Ik kom
@@ -94,8 +94,8 @@ export default async function EventDetailPage({
               type="submit"
               className={`rounded px-3 py-1.5 text-sm font-medium ${
                 mySignup?.response === "NOT_GOING"
-                  ? "bg-black text-white dark:bg-white dark:text-black"
-                  : "border border-black/15 dark:border-white/15"
+                  ? "bg-brand-600 text-white dark:bg-brand-500 dark:text-white"
+                  : "border border-brand-600/25 dark:border-brand-400/25"
               }`}
             >
               Ik kom niet

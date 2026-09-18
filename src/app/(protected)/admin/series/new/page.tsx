@@ -5,7 +5,7 @@ import { createSeries, type SeriesFormState } from "@/actions/admin/series";
 
 const initialState: SeriesFormState = { status: "idle" };
 const inputClass =
-  "rounded border border-black/15 bg-white px-3 py-2 text-sm dark:border-white/15 dark:bg-zinc-900";
+  "rounded border border-brand-600/25 bg-white px-3 py-2 text-sm dark:border-brand-400/25 dark:bg-brand-950";
 const DAYS = [
   { value: 0, label: "zondag" },
   { value: 1, label: "maandag" },
@@ -21,7 +21,7 @@ export default function NewSeriesPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">
+      <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">
         Nieuw terugkerend event
       </h1>
 
@@ -127,7 +127,7 @@ export default function NewSeriesPage() {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded bg-black px-3 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-black"
+          className="rounded bg-brand-600 px-3 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-brand-500 dark:text-white"
         >
           {isPending ? "Bezig…" : "Aanmaken"}
         </button>

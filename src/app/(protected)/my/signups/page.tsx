@@ -20,13 +20,13 @@ export default async function MySignupsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Mijn aanmeldingen</h1>
+      <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">Mijn aanmeldingen</h1>
 
       {signups.length === 0 && (
         <p className="text-zinc-600 dark:text-zinc-400">Nog geen aanmeldingen of toewijzingen.</p>
       )}
 
-      <ul className="flex flex-col divide-y divide-black/5 dark:divide-white/5">
+      <ul className="flex flex-col divide-y divide-brand-600/10 dark:divide-brand-400/10">
         {signups.map((s) => (
           <li key={s.id} className="py-3">
             <Link
@@ -34,7 +34,7 @@ export default async function MySignupsPage() {
               className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
             >
               <div>
-                <p className="font-medium text-black dark:text-zinc-50">{s.event.title}</p>
+                <p className="font-medium text-brand-900 dark:text-brand-50">{s.event.title}</p>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
                   {new Intl.DateTimeFormat("nl-BE", DATE_FORMAT).format(s.event.startAt)}
                 </p>

@@ -22,13 +22,13 @@ export default async function EventsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Agenda</h1>
+      <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">Agenda</h1>
 
       {events.length === 0 && (
         <p className="text-zinc-600 dark:text-zinc-400">Nog geen events gepland.</p>
       )}
 
-      <ul className="flex flex-col divide-y divide-black/5 dark:divide-white/5">
+      <ul className="flex flex-col divide-y divide-brand-600/10 dark:divide-brand-400/10">
         {events.map((event) => {
           const mySignup = event.signups[0];
           return (
@@ -38,14 +38,14 @@ export default async function EventsPage() {
                 className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
-                  <p className="font-medium text-black dark:text-zinc-50">{event.title}</p>
+                  <p className="font-medium text-brand-900 dark:text-brand-50">{event.title}</p>
                   <p className="text-sm text-zinc-600 dark:text-zinc-400">
                     {new Intl.DateTimeFormat("nl-BE", DATE_FORMAT).format(event.startAt)}
                     {event.location ? ` · ${event.location}` : ""}
                   </p>
                 </div>
                 {mySignup?.autoAssigned && mySignup.response === "GOING" && (
-                  <span className="rounded bg-black/[.06] px-2 py-1 text-xs font-medium dark:bg-white/[.08]">
+                  <span className="rounded bg-brand-600/10 px-2 py-1 text-xs font-medium dark:bg-brand-400/15">
                     Toegewezen
                   </span>
                 )}

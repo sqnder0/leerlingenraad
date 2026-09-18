@@ -26,7 +26,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">
+      <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">
         Welkom, {user.firstName}
       </h1>
 
@@ -41,7 +41,7 @@ export default async function DashboardPage() {
             .
           </p>
         ) : (
-          <ul className="flex flex-col divide-y divide-black/5 dark:divide-white/5">
+          <ul className="flex flex-col divide-y divide-brand-600/10 dark:divide-brand-400/10">
             {upcoming.map((s) => (
               <li key={s.id} className="py-2">
                 <Link

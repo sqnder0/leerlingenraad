@@ -10,10 +10,10 @@ export default async function AdminMembersPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Leden</h1>
+        <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">Leden</h1>
         <Link
           href="/admin/members/new"
-          className="rounded bg-black px-3 py-1.5 text-sm font-medium text-white dark:bg-white dark:text-black"
+          className="rounded bg-brand-600 px-3 py-1.5 text-sm font-medium text-white dark:bg-brand-500 dark:text-white"
         >
           Nieuw lid
         </Link>
@@ -22,7 +22,7 @@ export default async function AdminMembersPage() {
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-black/10 text-zinc-500 dark:border-white/10">
+            <tr className="border-b border-brand-600/15 text-zinc-500 dark:border-brand-400/15">
               <th className="py-2 pr-4">Naam</th>
               <th className="py-2 pr-4">Gebruikersnaam</th>
               <th className="py-2 pr-4">Klas</th>
@@ -33,7 +33,7 @@ export default async function AdminMembersPage() {
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user.id} className="border-b border-black/5 dark:border-white/5">
+              <tr key={user.id} className="border-b border-brand-600/10 dark:border-brand-400/10">
                 <td className="py-2 pr-4">
                   <Link href={`/admin/members/${user.id}`} className="underline underline-offset-2">
                     {user.firstName} {user.lastName}

@@ -6,13 +6,13 @@ export default async function AdminHomePage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Beheer</h1>
+      <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">Beheer</h1>
 
       <Link
         href="/admin/members"
-        className="rounded border border-black/10 p-4 hover:bg-black/[.03] dark:border-white/10 dark:hover:bg-white/[.05]"
+        className="rounded border border-brand-600/15 p-4 hover:bg-brand-600/5 dark:border-brand-400/15 dark:hover:bg-brand-400/5"
       >
-        <p className="font-medium text-black dark:text-zinc-50">Leden</p>
+        <p className="font-medium text-brand-900 dark:text-brand-50">Leden</p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           {pendingCount === 0
             ? "Geen aanvragen in afwachting."
@@ -22,17 +22,17 @@ export default async function AdminHomePage() {
 
       <Link
         href="/admin/events"
-        className="rounded border border-black/10 p-4 hover:bg-black/[.03] dark:border-white/10 dark:hover:bg-white/[.05]"
+        className="rounded border border-brand-600/15 p-4 hover:bg-brand-600/5 dark:border-brand-400/15 dark:hover:bg-brand-400/5"
       >
-        <p className="font-medium text-black dark:text-zinc-50">Events</p>
+        <p className="font-medium text-brand-900 dark:text-brand-50">Events</p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">Eenmalige events beheren.</p>
       </Link>
 
       <Link
         href="/admin/series"
-        className="rounded border border-black/10 p-4 hover:bg-black/[.03] dark:border-white/10 dark:hover:bg-white/[.05]"
+        className="rounded border border-brand-600/15 p-4 hover:bg-brand-600/5 dark:border-brand-400/15 dark:hover:bg-brand-400/5"
       >
-        <p className="font-medium text-black dark:text-zinc-50">Terugkerende events</p>
+        <p className="font-medium text-brand-900 dark:text-brand-50">Terugkerende events</p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Wekelijkse beurten (bv. schoolwinkeltje).
         </p>
@@ -40,9 +40,9 @@ export default async function AdminHomePage() {
 
       <Link
         href="/admin/trimesters"
-        className="rounded border border-black/10 p-4 hover:bg-black/[.03] dark:border-white/10 dark:hover:bg-white/[.05]"
+        className="rounded border border-brand-600/15 p-4 hover:bg-brand-600/5 dark:border-brand-400/15 dark:hover:bg-brand-400/5"
       >
-        <p className="font-medium text-black dark:text-zinc-50">Trimesters</p>
+        <p className="font-medium text-brand-900 dark:text-brand-50">Trimesters</p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Roosters genereren en eerlijke verdeling bekijken.
         </p>
@@ -50,9 +50,9 @@ export default async function AdminHomePage() {
 
       <Link
         href="/admin/school-years"
-        className="rounded border border-black/10 p-4 hover:bg-black/[.03] dark:border-white/10 dark:hover:bg-white/[.05]"
+        className="rounded border border-brand-600/15 p-4 hover:bg-brand-600/5 dark:border-brand-400/15 dark:hover:bg-brand-400/5"
       >
-        <p className="font-medium text-black dark:text-zinc-50">Schooljaren</p>
+        <p className="font-medium text-brand-900 dark:text-brand-50">Schooljaren</p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Archiveren en nieuw jaar starten.
         </p>
@@ -60,9 +60,9 @@ export default async function AdminHomePage() {
 
       <Link
         href="/admin/vrijroosteren"
-        className="rounded border border-black/10 p-4 hover:bg-black/[.03] dark:border-white/10 dark:hover:bg-white/[.05]"
+        className="rounded border border-brand-600/15 p-4 hover:bg-brand-600/5 dark:border-brand-400/15 dark:hover:bg-brand-400/5"
       >
-        <p className="font-medium text-black dark:text-zinc-50">Vrijroosteren</p>
+        <p className="font-medium text-brand-900 dark:text-brand-50">Vrijroosteren</p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Rapport voor het schoolsecretariaat, printbaar of als CSV.
         </p>
@@ -70,9 +70,9 @@ export default async function AdminHomePage() {
 
       <Link
         href="/admin/points"
-        className="rounded border border-black/10 p-4 hover:bg-black/[.03] dark:border-white/10 dark:hover:bg-white/[.05]"
+        className="rounded border border-brand-600/15 p-4 hover:bg-brand-600/5 dark:border-brand-400/15 dark:hover:bg-brand-400/5"
       >
-        <p className="font-medium text-black dark:text-zinc-50">Puntendashboard</p>
+        <p className="font-medium text-brand-900 dark:text-brand-50">Puntendashboard</p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Eerlijkheid per lid, dit schooljaar.
         </p>

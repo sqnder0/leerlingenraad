@@ -17,7 +17,7 @@ export function AttendanceForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <ul className="flex flex-col divide-y divide-black/5 dark:divide-white/5">
+      <ul className="flex flex-col divide-y divide-brand-600/10 dark:divide-brand-400/10">
         {signups.map((s) => (
           <li key={s.id} className="flex items-center justify-between py-2">
             <div>
@@ -58,7 +58,7 @@ export function AttendanceForm({
       <button
         type="submit"
         disabled={isPending}
-        className="w-fit rounded bg-black px-3 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-black"
+        className="w-fit rounded bg-brand-600 px-3 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-brand-500 dark:text-white"
       >
         {isPending ? "Bezig…" : "Bevestigen en punten toekennen"}
       </button>

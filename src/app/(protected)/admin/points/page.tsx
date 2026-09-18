@@ -30,13 +30,13 @@ export default async function PointsPage({
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Puntendashboard</h1>
+      <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">Puntendashboard</h1>
 
       <form className="flex flex-wrap gap-3 text-sm">
         <select
           name="schoolYearId"
           defaultValue={selectedYear?.id}
-          className="rounded border border-black/15 bg-white px-3 py-2 dark:border-white/15 dark:bg-zinc-900"
+          className="rounded border border-brand-600/25 bg-white px-3 py-2 dark:border-brand-400/25 dark:bg-brand-950"
         >
           {schoolYears.map((y) => (
             <option key={y.id} value={y.id}>
@@ -48,7 +48,7 @@ export default async function PointsPage({
         <select
           name="classGroup"
           defaultValue={classGroup ?? ""}
-          className="rounded border border-black/15 bg-white px-3 py-2 dark:border-white/15 dark:bg-zinc-900"
+          className="rounded border border-brand-600/25 bg-white px-3 py-2 dark:border-brand-400/25 dark:bg-brand-950"
         >
           <option value="">Alle klassen</option>
           {classGroups.map((c) => (
@@ -59,7 +59,7 @@ export default async function PointsPage({
         </select>
         <button
           type="submit"
-          className="rounded border border-black/15 px-3 py-2 dark:border-white/15"
+          className="rounded border border-brand-600/25 px-3 py-2 dark:border-brand-400/25"
         >
           Filteren
         </button>
@@ -71,7 +71,7 @@ export default async function PointsPage({
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-black/10 text-zinc-500 dark:border-white/10">
+              <tr className="border-b border-brand-600/15 text-zinc-500 dark:border-brand-400/15">
                 <th className="py-2 pr-4">Naam</th>
                 <th className="py-2 pr-4">Klas</th>
                 <th className="py-2 pr-4">Balans</th>
@@ -79,7 +79,7 @@ export default async function PointsPage({
             </thead>
             <tbody>
               {balances.map((m) => (
-                <tr key={m.id} className="border-b border-black/5 dark:border-white/5">
+                <tr key={m.id} className="border-b border-brand-600/10 dark:border-brand-400/10">
                   <td className="py-2 pr-4">
                     <Link href={`/admin/members/${m.id}`} className="underline underline-offset-2">
                       {m.firstName} {m.lastName}
