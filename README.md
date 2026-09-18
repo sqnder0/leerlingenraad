@@ -28,7 +28,10 @@ Het volledige plan (datamodel, auth-architectuur, routes, build-order) staat in
 - ✅ **M7 — Polish/hardening**: login-throttling (5 pogingen/15 min per gebruikersnaam), Vitest
   (gating + puntentoekenning-idempotentie), mobielvriendelijke tabellen/lijsten/header,
   ontbrekende lege-staten, `lang="nl"`.
-- ⬜ M8 — Deploy (Dokploy)
+- ✅ **M8 — Deploy**: Dockerfile draait `prisma migrate deploy` automatisch bij het opstarten
+  van de container, vóór de server start (faalt de migratie, dan start de container niet).
+  Nog manueel te doen op Dokploy: de Postgres-service en de environment variables
+  (`DATABASE_URL`, `AUTH_SECRET`) instellen, en een deploy als smoke test draaien.
 - ⬜ M9 — Smartschool OAuth (geblokkeerd op extern: school moet OAuth-app registreren)
 
 Zie `docs/plan.md` §6 voor de volledige, gedetailleerde build-order.
@@ -90,6 +93,9 @@ Dokploy's automatische Nixpacks-detectie: die faalde herhaaldelijk op `corepack`
 gepinde pnpm-versie niet kon ophalen. `pnpm` wordt in de image daarom rechtstreeks via `npm`
 geïnstalleerd, corepack wordt niet gebruikt.
 
+Bij het opstarten van de container draait automatisch `prisma migrate deploy` (via een kleine,
+losstaande toolchain in de image, apart van de standalone Next.js-app) vóór de server start. Als
+migraties falen, start de container niet, in plaats van te draaien tegen een verouderd schema.
+Seed-data draait bewust **niet** mee bij deploy.
+
 `DATABASE_URL` en `AUTH_SECRET` moeten als environment variables op de Dokploy-app staan.
-Migraties (`prisma migrate deploy`) draaien nog niet automatisch mee in de container, dat
-volgt in M8.
