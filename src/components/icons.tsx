@@ -59,3 +59,31 @@ export function SendIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function HomeIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base(props)}>
+      <path d="M4 11.5 12 4l8 7.5" />
+      <path d="M6 10v9a1 1 0 0 0 1 1h4v-5h2v5h4a1 1 0 0 0 1-1v-9" />
+    </svg>
+  );
+}
+
+export function UsersIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="9" cy="8" r="3" />
+      <path d="M3.5 20v-1a5.5 5.5 0 0 1 11 0v1" />
+      <path d="M16 4.5a3 3 0 0 1 0 5.8M18.5 20v-1a5 5 0 0 0-3.2-4.7" />
+    </svg>
+  );
+}
+
+export function LogOutIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base(props)}>
+      <path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3" />
+      <path d="M15 16l4-4-4-4M19 12H9" />
+    </svg>
+  );
+}
