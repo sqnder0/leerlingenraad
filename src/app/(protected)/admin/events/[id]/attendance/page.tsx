@@ -20,9 +20,7 @@ export default async function AttendancePage({ params }: { params: Promise<{ id:
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
       <div>
-        <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">
-          Aanwezigheid: {event.title}
-        </h1>
+        <h1 className="text-xl font-semibold text-brand-900">Aanwezigheid: {event.title}</h1>
         <p className="text-sm text-zinc-500">
           {new Intl.DateTimeFormat("nl-BE", {
             day: "numeric",

@@ -57,6 +57,20 @@ export async function createEvent(
   return { status: "idle" };
 }
 
+/** One-click publish for a draft event, used from the agenda's admin quick-action. */
+export async function publishEvent(eventId: string) {
+  await requireAdmin();
+
+  await prisma.event.update({
+    where: { id: eventId },
+    data: { status: "PUBLISHED" },
+  });
+
+  revalidatePath("/admin/events");
+  revalidatePath(`/events/${eventId}`);
+  revalidatePath("/events");
+}
+
 export async function updateEvent(
   eventId: string,
   _prevState: EventFormState,

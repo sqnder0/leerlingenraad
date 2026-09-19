@@ -5,7 +5,7 @@ import { createManualAdjustment, type AdjustmentState } from "@/actions/admin/po
 
 const initialState: AdjustmentState = { status: "idle" };
 const inputClass =
-  "rounded-lg border border-brand-600/25 bg-white px-3 py-2 text-sm shadow-sm outline-none transition-shadow focus:border-brand-600 focus:ring-2 focus:ring-brand-500/30 dark:border-brand-400/25 dark:bg-brand-950";
+  "rounded-lg border border-brand-600/25 bg-white px-3 py-2 text-sm shadow-sm outline-none transition-shadow focus:border-brand-600 focus:ring-2 focus:ring-brand-500/30";
 
 export function AdjustmentForm({ userId }: { userId: string }) {
   const action = createManualAdjustment.bind(null, userId);
@@ -14,7 +14,7 @@ export function AdjustmentForm({ userId }: { userId: string }) {
   return (
     <form action={formAction} className="flex flex-wrap items-end gap-3">
       <div className="flex flex-col gap-1">
-        <label htmlFor="delta" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="delta" className="text-sm text-zinc-600">
           Aanpassing (+/-)
         </label>
         <input
@@ -27,7 +27,7 @@ export function AdjustmentForm({ userId }: { userId: string }) {
         />
       </div>
       <div className="flex flex-1 flex-col gap-1">
-        <label htmlFor="reason" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="reason" className="text-sm text-zinc-600">
           Reden
         </label>
         <input id="reason" name="reason" required className={inputClass} />
@@ -35,13 +35,11 @@ export function AdjustmentForm({ userId }: { userId: string }) {
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 hover:shadow disabled:pointer-events-none disabled:opacity-50 dark:bg-brand-500 dark:hover:bg-brand-400"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 hover:shadow disabled:pointer-events-none disabled:opacity-50"
       >
         {isPending ? "Bezig…" : "Toepassen"}
       </button>
-      {state.status === "error" && (
-        <p className="w-full text-sm text-red-600 dark:text-red-400">{state.message}</p>
-      )}
+      {state.status === "error" && <p className="w-full text-sm text-red-600">{state.message}</p>}
     </form>
   );
 }

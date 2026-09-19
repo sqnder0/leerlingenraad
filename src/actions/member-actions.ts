@@ -18,6 +18,7 @@ export async function rsvp(eventId: string, response: "GOING" | "NOT_GOING") {
   revalidatePath(`/events/${eventId}`);
   revalidatePath("/events");
   revalidatePath("/my/signups");
+  revalidatePath("/dashboard");
 }
 
 /**

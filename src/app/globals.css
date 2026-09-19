@@ -3,6 +3,9 @@
 :root {
   --background: #ffffff;
   --foreground: #192b1d;
+  /* Always light: stop the browser from rendering native form controls
+     (scrollbars, date pickers, ...) in a dark style on a dark-mode OS. */
+  color-scheme: light;
 }
 
 /* Leerlingenraad Atheneum Keerbergen. brand-500 and brand-600 are the exact
@@ -27,13 +30,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #111c14;
-    --foreground: #f4f9f4;
-  }
 }
 
 body {

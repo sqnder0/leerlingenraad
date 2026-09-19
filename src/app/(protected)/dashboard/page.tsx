@@ -1,8 +1,11 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { requireApprovedUser } from "@/lib/current-user";
 import { prisma } from "@/lib/prisma";
-import { rsvp, declineAssignment } from "@/actions/member-actions";
 import { NotificationOptIn } from "@/components/notification-opt-in";
+import { ExpectedList, type ExpectedSignup } from "@/components/dashboard/expected-list";
+import { OptInList, type OptInEvent } from "@/components/dashboard/opt-in-list";
+import { ClipboardIcon, CalendarIcon, ClockIcon, CheckCircleIcon } from "@/components/icons";
 
 const DATE_FORMAT: Intl.DateTimeFormatOptions = {
   weekday: "short",
@@ -12,15 +15,68 @@ const DATE_FORMAT: Intl.DateTimeFormatOptions = {
   minute: "2-digit",
 };
 
+const TODAY_FORMAT: Intl.DateTimeFormatOptions = {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+};
+
 function formatWhen(date: Date) {
   return new Intl.DateTimeFormat("nl-BE", DATE_FORMAT).format(date);
+}
+
+function StatCard({ icon, label, value }: { icon: ReactNode; label: string; value: number }) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-brand-600/15 bg-white p-4 shadow-sm">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-600/10 text-brand-700">
+        {icon}
+      </div>
+      <div>
+        <p className="text-2xl leading-tight font-semibold text-brand-900">{value}</p>
+        <p className="text-sm text-zinc-500">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+function SectionCard({
+  icon,
+  title,
+  count,
+  children,
+  footer,
+}: {
+  icon: ReactNode;
+  title: string;
+  count: number;
+  children: ReactNode;
+  footer?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-3 rounded-2xl border border-brand-600/15 bg-white p-5 shadow-sm">
+      <div className="flex items-center gap-2">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-600/10 text-brand-700">
+          {icon}
+        </span>
+        <h2 className="font-semibold text-brand-900">{title}</h2>
+        {count > 0 && (
+          <span className="ml-auto rounded-full bg-brand-600/10 px-2.5 py-0.5 text-xs font-medium text-brand-800">
+            {count}
+          </span>
+        )}
+      </div>
+      {children}
+      {footer}
+    </div>
+  );
 }
 
 export default async function DashboardPage() {
   const user = await requireApprovedUser();
   const now = new Date();
+  const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-  const [expected, optInEvents] = await Promise.all([
+  const [expectedRows, optInEventRows] = await Promise.all([
     // Opt-out: duty/rotation slots you're auto-assigned to and still on the
     // hook for — "Ik kan niet" declines and triggers reassignment.
     prisma.signup.findMany({
@@ -43,99 +99,77 @@ export default async function DashboardPage() {
     }),
   ]);
 
+  const expected: ExpectedSignup[] = expectedRows.map((s) => ({
+    id: s.id,
+    eventId: s.eventId,
+    title: s.event.title,
+    when: formatWhen(s.event.startAt),
+  }));
+  const optInEvents: OptInEvent[] = optInEventRows.map((e) => ({
+    id: e.id,
+    title: e.title,
+    when: formatWhen(e.startAt),
+    response: e.signups[0]?.response ?? null,
+  }));
+
+  const dueThisWeek = expectedRows.filter((s) => s.event.startAt <= weekFromNow).length;
+  const awaitingResponse = optInEvents.filter((e) => e.response === null).length;
+  const confirmed = optInEvents.filter((e) => e.response === "GOING").length;
+
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
-      <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">
-        Welkom, {user.firstName}
-      </h1>
+      <div>
+        <h1 className="text-2xl font-semibold text-brand-900">Welkom, {user.firstName}</h1>
+        <p className="text-sm text-zinc-500 capitalize">
+          {new Intl.DateTimeFormat("nl-BE", TODAY_FORMAT).format(now)}
+        </p>
+      </div>
 
       <NotificationOptIn />
 
-      <section className="flex flex-col gap-2">
-        <p className="text-sm font-medium text-zinc-500">Verwacht van jou</p>
-        {expected.length === 0 ? (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            Geen toegewezen beurten gepland.
-          </p>
-        ) : (
-          <ul className="flex flex-col gap-1.5">
-            {expected.map((signup) => (
-              <li
-                key={signup.id}
-                className="flex items-center justify-between gap-3 rounded-lg border border-brand-600/10 px-3 py-2 transition-colors hover:border-brand-600/25 hover:bg-brand-600/5 dark:border-brand-400/10 dark:hover:border-brand-400/25 dark:hover:bg-brand-400/5"
-              >
-                <Link href={`/events/${signup.eventId}`} className="flex-1">
-                  <p className="font-medium text-brand-900 dark:text-brand-50">
-                    {signup.event.title}
-                  </p>
-                  <p className="text-sm text-zinc-500">{formatWhen(signup.event.startAt)}</p>
-                </Link>
-                <form action={declineAssignment.bind(null, signup.id)}>
-                  <button
-                    type="submit"
-                    className="rounded-lg border border-brand-600/30 px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors hover:bg-brand-600/5 dark:border-brand-400/30 dark:hover:bg-brand-400/5"
-                  >
-                    Ik kan niet
-                  </button>
-                </form>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <StatCard
+          icon={<ClockIcon className="h-5 w-5" />}
+          label="Beurten deze week"
+          value={dueThisWeek}
+        />
+        <StatCard
+          icon={<CalendarIcon className="h-5 w-5" />}
+          label="Nog te bevestigen"
+          value={awaitingResponse}
+        />
+        <StatCard
+          icon={<CheckCircleIcon className="h-5 w-5" />}
+          label="Aangemeld"
+          value={confirmed}
+        />
+      </div>
 
-      <section className="flex flex-col gap-2">
-        <p className="text-sm font-medium text-zinc-500">Opt-in events</p>
-        {optInEvents.length === 0 ? (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">Nog geen events gepland.</p>
-        ) : (
-          <ul className="flex flex-col gap-1.5">
-            {optInEvents.map((event) => {
-              const response = event.signups[0]?.response;
-              return (
-                <li
-                  key={event.id}
-                  className="flex items-center justify-between gap-3 rounded-lg border border-brand-600/10 px-3 py-2 transition-colors hover:border-brand-600/25 hover:bg-brand-600/5 dark:border-brand-400/10 dark:hover:border-brand-400/25 dark:hover:bg-brand-400/5"
-                >
-                  <Link href={`/events/${event.id}`} className="flex-1">
-                    <p className="font-medium text-brand-900 dark:text-brand-50">{event.title}</p>
-                    <p className="text-sm text-zinc-500">{formatWhen(event.startAt)}</p>
-                  </Link>
-                  <div className="flex gap-2">
-                    <form action={rsvp.bind(null, event.id, "GOING")}>
-                      <button
-                        type="submit"
-                        className={`rounded-lg px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
-                          response === "GOING"
-                            ? "bg-brand-600 text-white shadow-sm hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400"
-                            : "border border-brand-600/30 hover:bg-brand-600/5 dark:border-brand-400/30 dark:hover:bg-brand-400/5"
-                        }`}
-                      >
-                        Ik kom
-                      </button>
-                    </form>
-                    <form action={rsvp.bind(null, event.id, "NOT_GOING")}>
-                      <button
-                        type="submit"
-                        className={`rounded-lg px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
-                          response === "NOT_GOING"
-                            ? "bg-brand-600 text-white shadow-sm hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400"
-                            : "border border-brand-600/30 hover:bg-brand-600/5 dark:border-brand-400/30 dark:hover:bg-brand-400/5"
-                        }`}
-                      >
-                        Ik kom niet
-                      </button>
-                    </form>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-        <Link href="/events" className="text-sm underline underline-offset-2">
-          Volledige agenda
-        </Link>
-      </section>
+      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <SectionCard
+          icon={<ClipboardIcon className="h-5 w-5" />}
+          title="Verwacht van jou"
+          count={expected.length}
+        >
+          <ExpectedList signups={expected} />
+        </SectionCard>
+
+        <SectionCard
+          icon={<CalendarIcon className="h-5 w-5" />}
+          title="Opt-in events"
+          count={optInEvents.length}
+          footer={
+            <Link
+              href="/events"
+              className="text-sm text-brand-700 underline underline-offset-2 transition-colors hover:text-brand-800"
+            >
+              Volledige agenda
+            </Link>
+          }
+        >
+          <OptInList events={optInEvents} />
+        </SectionCard>
+      </div>
     </div>
   );
 }

@@ -107,7 +107,7 @@ export function NotificationOptIn() {
 
   if (support === "needs-install") {
     return (
-      <p className="rounded-lg border border-brand-600/25 bg-brand-50 px-3 py-2 text-sm text-brand-900 shadow-sm dark:border-brand-400/25 dark:bg-brand-950 dark:text-brand-50">
+      <p className="rounded-lg border border-brand-600/25 bg-brand-50 px-3 py-2 text-sm text-brand-900 shadow-sm">
         Voeg deze app toe aan je beginscherm (deelknop → &quot;Voeg toe aan beginscherm&quot;) om
         herinneringen 24u op voorhand te kunnen ontvangen.
       </p>
@@ -120,11 +120,11 @@ export function NotificationOptIn() {
         type="button"
         onClick={subscribed ? disable : enable}
         disabled={pending}
-        className="rounded-lg border border-brand-600/30 px-4 py-2 text-sm font-medium transition-colors hover:bg-brand-600/5 disabled:pointer-events-none disabled:opacity-50 dark:border-brand-400/30 dark:hover:bg-brand-400/5"
+        className="rounded-lg border border-brand-600/30 px-4 py-2 text-sm font-medium transition-colors hover:bg-brand-600/5 disabled:pointer-events-none disabled:opacity-50"
       >
         {subscribed ? "Herinneringen uitschakelen" : "Herinneringen inschakelen (24u op voorhand)"}
       </button>
-      {error && <span className="text-sm text-red-600 dark:text-red-400">{error}</span>}
+      {error && <span className="text-sm text-red-600">{error}</span>}
     </div>
   );
 }

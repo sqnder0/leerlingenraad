@@ -2,21 +2,18 @@ import Link from "next/link";
 
 export default function RejectedPage() {
   return (
-    <div className="flex flex-1 items-center justify-center bg-gradient-to-br from-brand-50 via-white to-brand-100 p-6 dark:from-brand-950 dark:via-brand-900 dark:to-brand-950">
-      <main className="flex max-w-md flex-col items-center gap-3 rounded-2xl border border-brand-600/15 bg-white p-8 text-center shadow-xl shadow-brand-900/5 dark:border-brand-400/15 dark:bg-brand-950/60">
+    <div className="flex flex-1 items-center justify-center bg-gradient-to-br from-brand-50 via-white to-brand-100 p-6">
+      <main className="flex max-w-md flex-col items-center gap-3 rounded-2xl border border-brand-600/15 bg-white p-8 text-center shadow-xl shadow-brand-900/5">
         {/* eslint-disable-next-line @next/next/no-img-element -- tiny inline brand mark, not worth next/image's overhead */}
         <img src="/icon.svg" alt="" width={40} height={40} />
-        <h1 className="text-2xl font-semibold tracking-tight text-brand-900 dark:text-brand-50">
+        <h1 className="text-2xl font-semibold tracking-tight text-brand-900">
           Account niet goedgekeurd
         </h1>
-        <p className="text-zinc-600 dark:text-zinc-400">
+        <p className="text-zinc-600">
           Je account is niet goedgekeurd. Neem contact op met een beheerder van de leerlingenraad
           als je denkt dat dit een vergissing is.
         </p>
-        <Link
-          href="/login"
-          className="text-sm text-brand-700 underline underline-offset-2 dark:text-brand-300"
-        >
+        <Link href="/login" className="text-sm text-brand-700 underline underline-offset-2">
           Terug naar inloggen
         </Link>
       </main>

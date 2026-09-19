@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/current-user";
-import { rsvp, declineAssignment } from "@/actions/member-actions";
+import { RsvpPanel } from "./rsvp-panel";
 
 const DATE_FORMAT: Intl.DateTimeFormatOptions = {
   weekday: "long",
@@ -38,8 +38,8 @@ export default async function EventDetailPage({
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
       <div>
-        <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">{event.title}</h1>
-        <p className="text-zinc-600 dark:text-zinc-400">
+        <h1 className="text-xl font-semibold text-brand-900">{event.title}</h1>
+        <p className="text-zinc-600">
           {new Intl.DateTimeFormat("nl-BE", DATE_FORMAT).format(event.startAt)}
           {event.location ? ` · ${event.location}` : ""}
         </p>
@@ -62,47 +62,13 @@ export default async function EventDetailPage({
         )}
       </div>
 
-      {isRotationEvent ? (
-        mySignup?.autoAssigned && mySignup.response === "GOING" ? (
-          <form action={declineAssignment.bind(null, mySignup.id)}>
-            <button
-              type="submit"
-              className="rounded-lg border border-brand-600/30 px-4 py-2 text-sm font-medium transition-colors hover:bg-brand-600/5 dark:border-brand-400/30 dark:hover:bg-brand-400/5"
-            >
-              Ik kan niet
-            </button>
-          </form>
-        ) : mySignup?.response === "NOT_GOING" ? (
-          <p className="text-sm text-zinc-500">Je hebt afgemeld, iemand anders is toegewezen.</p>
-        ) : null
-      ) : (
-        <div className="flex gap-3">
-          <form action={rsvp.bind(null, event.id, "GOING")}>
-            <button
-              type="submit"
-              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                mySignup?.response === "GOING"
-                  ? "bg-brand-600 text-white shadow-sm hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400"
-                  : "border border-brand-600/30 hover:bg-brand-600/5 dark:border-brand-400/30 dark:hover:bg-brand-400/5"
-              }`}
-            >
-              Ik kom
-            </button>
-          </form>
-          <form action={rsvp.bind(null, event.id, "NOT_GOING")}>
-            <button
-              type="submit"
-              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                mySignup?.response === "NOT_GOING"
-                  ? "bg-brand-600 text-white shadow-sm hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400"
-                  : "border border-brand-600/30 hover:bg-brand-600/5 dark:border-brand-400/30 dark:hover:bg-brand-400/5"
-              }`}
-            >
-              Ik kom niet
-            </button>
-          </form>
-        </div>
-      )}
+      <RsvpPanel
+        eventId={event.id}
+        signupId={mySignup?.id ?? null}
+        isRotationEvent={isRotationEvent}
+        autoAssigned={mySignup?.autoAssigned ?? false}
+        initialResponse={mySignup?.response ?? null}
+      />
     </div>
   );
 }

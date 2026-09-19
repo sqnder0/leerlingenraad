@@ -40,9 +40,7 @@ export default async function TrimesterDetailPage({ params }: { params: Promise<
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
       <div>
-        <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">
-          {trimester.label}
-        </h1>
+        <h1 className="text-xl font-semibold text-brand-900">{trimester.label}</h1>
         <p className="text-sm text-zinc-500">
           {new Intl.DateTimeFormat("nl-BE").format(trimester.startsAt)} –{" "}
           {new Intl.DateTimeFormat("nl-BE").format(trimester.endsAt)}
@@ -55,10 +53,7 @@ export default async function TrimesterDetailPage({ params }: { params: Promise<
         <p className="mb-2 text-sm font-medium text-zinc-500">Eerlijkheid (aantal beurten)</p>
         <ul className="flex flex-wrap gap-2 text-sm">
           {pool.map((u) => (
-            <li
-              key={u.id}
-              className="rounded-full bg-brand-600/10 px-2.5 py-1 text-sm dark:bg-brand-400/15"
-            >
+            <li key={u.id} className="rounded-full bg-brand-600/10 px-2.5 py-1 text-sm">
               {u.firstName}: {counts.get(u.id) ?? 0}
             </li>
           ))}
@@ -73,7 +68,7 @@ export default async function TrimesterDetailPage({ params }: { params: Promise<
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-brand-600/15 text-zinc-500 dark:border-brand-400/15">
+                <tr className="border-b border-brand-600/15 text-zinc-500">
                   <th className="py-2 pr-4">Datum</th>
                   <th className="py-2 pr-4">Event</th>
                   <th className="py-2 pr-4">Toegewezen</th>
@@ -83,7 +78,7 @@ export default async function TrimesterDetailPage({ params }: { params: Promise<
                 {events.map((event) => (
                   <tr
                     key={event.id}
-                    className="border-b border-brand-600/10 transition-colors hover:bg-brand-600/5 dark:border-brand-400/10 dark:hover:bg-brand-400/5"
+                    className="border-b border-brand-600/10 transition-colors hover:bg-brand-600/5"
                   >
                     <td className="py-2 pr-4">
                       {new Intl.DateTimeFormat("nl-BE", {

@@ -7,10 +7,10 @@ export default async function AdminTrimestersPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">Trimesters</h1>
+        <h1 className="text-xl font-semibold text-brand-900">Trimesters</h1>
         <Link
           href="/admin/trimesters/new"
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 hover:shadow dark:bg-brand-500 dark:hover:bg-brand-400"
+          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 hover:shadow"
         >
           Nieuw trimester
         </Link>
@@ -24,9 +24,9 @@ export default async function AdminTrimestersPage() {
             <li key={t.id}>
               <Link
                 href={`/admin/trimesters/${t.id}`}
-                className="flex flex-col gap-1 rounded-lg border border-brand-600/10 px-3 py-3 transition-colors hover:border-brand-600/25 hover:bg-brand-600/5 sm:flex-row sm:items-center sm:justify-between dark:border-brand-400/10 dark:hover:border-brand-400/25 dark:hover:bg-brand-400/5"
+                className="flex flex-col gap-1 rounded-lg border border-brand-600/10 px-3 py-3 transition-colors hover:border-brand-600/25 hover:bg-brand-600/5 sm:flex-row sm:items-center sm:justify-between"
               >
-                <span className="font-medium text-brand-900 dark:text-brand-50">{t.label}</span>
+                <span className="font-medium text-brand-900">{t.label}</span>
                 <span className="text-sm text-zinc-500">
                   {new Intl.DateTimeFormat("nl-BE").format(t.startsAt)} –{" "}
                   {new Intl.DateTimeFormat("nl-BE").format(t.endsAt)}

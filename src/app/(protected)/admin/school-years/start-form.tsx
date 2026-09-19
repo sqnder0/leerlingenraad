@@ -5,7 +5,7 @@ import { startNewSchoolYear, type StartSchoolYearState } from "@/actions/admin/s
 
 const initialState: StartSchoolYearState = { status: "idle" };
 const inputClass =
-  "rounded-lg border border-brand-600/25 bg-white px-3 py-2 text-sm shadow-sm outline-none transition-shadow focus:border-brand-600 focus:ring-2 focus:ring-brand-500/30 dark:border-brand-400/25 dark:bg-brand-950";
+  "rounded-lg border border-brand-600/25 bg-white px-3 py-2 text-sm shadow-sm outline-none transition-shadow focus:border-brand-600 focus:ring-2 focus:ring-brand-500/30";
 
 function toDateInputValue(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -22,7 +22,7 @@ export function StartSchoolYearForm({ defaultStartsAt }: { defaultStartsAt?: Dat
   return (
     <form action={formAction} className="flex flex-wrap items-end gap-3">
       <div className="flex flex-col gap-1">
-        <label htmlFor="label" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="label" className="text-sm text-zinc-600">
           Naam
         </label>
         <input
@@ -34,7 +34,7 @@ export function StartSchoolYearForm({ defaultStartsAt }: { defaultStartsAt?: Dat
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor="startsAt" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="startsAt" className="text-sm text-zinc-600">
           Start
         </label>
         <input
@@ -47,7 +47,7 @@ export function StartSchoolYearForm({ defaultStartsAt }: { defaultStartsAt?: Dat
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor="endsAt" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="endsAt" className="text-sm text-zinc-600">
           Einde
         </label>
         <input id="endsAt" name="endsAt" type="date" required className={inputClass} />
@@ -55,13 +55,11 @@ export function StartSchoolYearForm({ defaultStartsAt }: { defaultStartsAt?: Dat
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 hover:shadow disabled:pointer-events-none disabled:opacity-50 dark:bg-brand-500 dark:hover:bg-brand-400"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 hover:shadow disabled:pointer-events-none disabled:opacity-50"
       >
         {isPending ? "Bezig…" : "Archiveer & start"}
       </button>
-      {state.status === "error" && (
-        <p className="w-full text-sm text-red-600 dark:text-red-400">{state.message}</p>
-      )}
+      {state.status === "error" && <p className="w-full text-sm text-red-600">{state.message}</p>}
     </form>
   );
 }

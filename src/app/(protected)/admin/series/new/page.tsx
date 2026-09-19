@@ -5,7 +5,7 @@ import { createSeries, type SeriesFormState } from "@/actions/admin/series";
 
 const initialState: SeriesFormState = { status: "idle" };
 const inputClass =
-  "rounded-lg border border-brand-600/25 bg-white px-3 py-2 text-sm shadow-sm outline-none transition-shadow focus:border-brand-600 focus:ring-2 focus:ring-brand-500/30 dark:border-brand-400/25 dark:bg-brand-950";
+  "rounded-lg border border-brand-600/25 bg-white px-3 py-2 text-sm shadow-sm outline-none transition-shadow focus:border-brand-600 focus:ring-2 focus:ring-brand-500/30";
 const DAYS = [
   { value: 0, label: "zondag" },
   { value: 1, label: "maandag" },
@@ -21,34 +21,32 @@ export default function NewSeriesPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
-      <h1 className="text-xl font-semibold text-brand-900 dark:text-brand-50">
-        Nieuw terugkerend event
-      </h1>
+      <h1 className="text-xl font-semibold text-brand-900">Nieuw terugkerend event</h1>
 
       <form action={formAction} className="flex max-w-sm flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <label htmlFor="title" className="text-sm text-zinc-600 dark:text-zinc-400">
+          <label htmlFor="title" className="text-sm text-zinc-600">
             Titel
           </label>
           <input id="title" name="title" required className={inputClass} />
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="description" className="text-sm text-zinc-600 dark:text-zinc-400">
+          <label htmlFor="description" className="text-sm text-zinc-600">
             Beschrijving (optioneel)
           </label>
           <textarea id="description" name="description" rows={2} className={inputClass} />
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="location" className="text-sm text-zinc-600 dark:text-zinc-400">
+          <label htmlFor="location" className="text-sm text-zinc-600">
             Locatie (optioneel)
           </label>
           <input id="location" name="location" className={inputClass} />
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="dayOfWeek" className="text-sm text-zinc-600 dark:text-zinc-400">
+          <label htmlFor="dayOfWeek" className="text-sm text-zinc-600">
             Dag van de week
           </label>
           <select id="dayOfWeek" name="dayOfWeek" defaultValue="3" className={inputClass}>
@@ -62,7 +60,7 @@ export default function NewSeriesPage() {
 
         <div className="flex gap-3">
           <div className="flex flex-1 flex-col gap-1">
-            <label htmlFor="startTime" className="text-sm text-zinc-600 dark:text-zinc-400">
+            <label htmlFor="startTime" className="text-sm text-zinc-600">
               Start
             </label>
             <input
@@ -75,7 +73,7 @@ export default function NewSeriesPage() {
             />
           </div>
           <div className="flex flex-1 flex-col gap-1">
-            <label htmlFor="endTime" className="text-sm text-zinc-600 dark:text-zinc-400">
+            <label htmlFor="endTime" className="text-sm text-zinc-600">
               Einde
             </label>
             <input
@@ -91,7 +89,7 @@ export default function NewSeriesPage() {
 
         <div className="flex gap-3">
           <div className="flex flex-1 flex-col gap-1">
-            <label htmlFor="membersNeeded" className="text-sm text-zinc-600 dark:text-zinc-400">
+            <label htmlFor="membersNeeded" className="text-sm text-zinc-600">
               Personen nodig
             </label>
             <input
@@ -105,7 +103,7 @@ export default function NewSeriesPage() {
             />
           </div>
           <div className="flex flex-1 flex-col gap-1">
-            <label htmlFor="pointValue" className="text-sm text-zinc-600 dark:text-zinc-400">
+            <label htmlFor="pointValue" className="text-sm text-zinc-600">
               Punten
             </label>
             <input
@@ -120,14 +118,12 @@ export default function NewSeriesPage() {
           </div>
         </div>
 
-        {state.status === "error" && (
-          <p className="text-sm text-red-600 dark:text-red-400">{state.message}</p>
-        )}
+        {state.status === "error" && <p className="text-sm text-red-600">{state.message}</p>}
 
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 hover:shadow disabled:pointer-events-none disabled:opacity-50 dark:bg-brand-500 dark:hover:bg-brand-400"
+          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 hover:shadow disabled:pointer-events-none disabled:opacity-50"
         >
           {isPending ? "Bezig…" : "Aanmaken"}
         </button>

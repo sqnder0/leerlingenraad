@@ -5,7 +5,7 @@ import { updateEvent, type EventFormState } from "@/actions/admin/events";
 
 const initialState: EventFormState = { status: "idle" };
 const inputClass =
-  "rounded-lg border border-brand-600/25 bg-white px-3 py-2 text-sm shadow-sm outline-none transition-shadow focus:border-brand-600 focus:ring-2 focus:ring-brand-500/30 dark:border-brand-400/25 dark:bg-brand-950";
+  "rounded-lg border border-brand-600/25 bg-white px-3 py-2 text-sm shadow-sm outline-none transition-shadow focus:border-brand-600 focus:ring-2 focus:ring-brand-500/30";
 
 export function EditEventForm({
   eventId,
@@ -28,7 +28,7 @@ export function EditEventForm({
   return (
     <form action={formAction} className="flex max-w-sm flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <label htmlFor="title" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="title" className="text-sm text-zinc-600">
           Titel
         </label>
         <input
@@ -41,7 +41,7 @@ export function EditEventForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="description" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="description" className="text-sm text-zinc-600">
           Beschrijving
         </label>
         <textarea
@@ -54,7 +54,7 @@ export function EditEventForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="location" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="location" className="text-sm text-zinc-600">
           Locatie
         </label>
         <input
@@ -66,7 +66,7 @@ export function EditEventForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="startAt" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="startAt" className="text-sm text-zinc-600">
           Start
         </label>
         <input
@@ -80,7 +80,7 @@ export function EditEventForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="endAt" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="endAt" className="text-sm text-zinc-600">
           Einde
         </label>
         <input
@@ -94,7 +94,7 @@ export function EditEventForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="pointValue" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="pointValue" className="text-sm text-zinc-600">
           Punten
         </label>
         <input
@@ -108,7 +108,7 @@ export function EditEventForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="status" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="status" className="text-sm text-zinc-600">
           Status
         </label>
         <select
@@ -124,14 +124,12 @@ export function EditEventForm({
         </select>
       </div>
 
-      {state.status === "error" && (
-        <p className="text-sm text-red-600 dark:text-red-400">{state.message}</p>
-      )}
+      {state.status === "error" && <p className="text-sm text-red-600">{state.message}</p>}
 
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 hover:shadow disabled:pointer-events-none disabled:opacity-50 dark:bg-brand-500 dark:hover:bg-brand-400"
+        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 hover:shadow disabled:pointer-events-none disabled:opacity-50"
       >
         {isPending ? "Bezig…" : "Opslaan"}
       </button>
