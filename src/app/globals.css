@@ -6,18 +6,18 @@
 }
 
 /* Leerlingenraad Atheneum Keerbergen. brand-500 and brand-600 are the exact
-   two greens sampled from the school logo (#47a147 and #386641); the rest
+   two greens from the official logo vector (#47A547 and #396542); the rest
    of the ramp is interpolated toward white/black from those two anchors. */
 @theme {
-  --color-brand-50: #f4f9f4;
+  --color-brand-50: #f4faf4;
   --color-brand-100: #e7f3e7;
-  --color-brand-200: #cbe5cb;
-  --color-brand-300: #a3d0a3;
-  --color-brand-400: #75b875;
-  --color-brand-500: #47a147;
-  --color-brand-600: #386641;
-  --color-brand-700: #2e5335;
-  --color-brand-800: #233f29;
+  --color-brand-200: #cbe6cb;
+  --color-brand-300: #a3d2a3;
+  --color-brand-400: #75bc75;
+  --color-brand-500: #47a547;
+  --color-brand-600: #396542;
+  --color-brand-700: #2f5236;
+  --color-brand-800: #243e2a;
   --color-brand-900: #192b1d;
   --color-brand-950: #111c14;
 }
