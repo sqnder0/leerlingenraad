@@ -149,3 +149,20 @@ export async function deleteAllSeriesEvents(seriesId: string) {
   revalidatePath("/events");
   revalidatePath("/dashboard");
 }
+
+/**
+ * Deletes just the series template itself, not the events it already
+ * generated — the inverse of deleteAllSeriesEvents. Event.seriesId is
+ * ON DELETE SET NULL, so every occurrence this series ever produced
+ * survives as a plain standalone event (no longer regenerated or
+ * tied to a series); RecurringSeriesInvite rows cascade-delete since
+ * they're meaningless without their series.
+ */
+export async function deleteSeries(seriesId: string) {
+  await requireAdmin();
+  await prisma.recurringSeries.delete({ where: { id: seriesId } });
+  revalidatePath("/admin/series");
+  revalidatePath("/admin/events");
+  revalidatePath("/events");
+  revalidatePath("/dashboard");
+}

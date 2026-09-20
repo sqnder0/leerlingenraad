@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { toggleSeriesActive, extendSeriesRosterAction } from "@/actions/admin/series";
-import { DeleteSeriesEventsButton } from "@/components/admin/delete-series-events-button";
+import {
+  DeleteSeriesEventsButton,
+  DeleteSeriesButton,
+} from "@/components/admin/delete-series-events-button";
 
 const DAYS = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
 const MODE_LABELS: Record<string, string> = {
@@ -98,6 +101,9 @@ export default async function AdminSeriesPage() {
                         <DeleteSeriesEventsButton seriesId={s.id} seriesTitle={s.title} />
                       </span>
                     )}
+                    <span className="ml-3">
+                      <DeleteSeriesButton seriesId={s.id} seriesTitle={s.title} />
+                    </span>
                   </td>
                 </tr>
               ))}
