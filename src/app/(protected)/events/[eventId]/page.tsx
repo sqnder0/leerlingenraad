@@ -26,6 +26,7 @@ export default async function EventDetailPage({
         where: { response: "GOING" },
         include: { user: { select: { id: true, firstName: true, lastName: true } } },
       },
+      series: { select: { assignmentMode: true } },
     },
   });
   if (!event || !user) notFound();
@@ -33,7 +34,6 @@ export default async function EventDetailPage({
   const mySignup = await prisma.signup.findUnique({
     where: { eventId_userId: { eventId, userId: user.id } },
   });
-  const isRotationEvent = event.seriesId !== null;
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
@@ -65,8 +65,7 @@ export default async function EventDetailPage({
       <RsvpPanel
         eventId={event.id}
         signupId={mySignup?.id ?? null}
-        isRotationEvent={isRotationEvent}
-        autoAssigned={mySignup?.autoAssigned ?? false}
+        assignmentMode={event.series?.assignmentMode ?? null}
         initialResponse={mySignup?.response ?? null}
       />
     </div>

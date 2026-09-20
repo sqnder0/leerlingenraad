@@ -87,3 +87,19 @@ export function LogOutIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function SpinnerIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base(props)} className={`animate-spin ${props.className ?? ""}`}>
+      <path d="M12 3a9 9 0 1 0 9 9" />
+    </svg>
+  );
+}
+
+export function CheckIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base(props)}>
+      <path d="M4 12.5l5 5L20 6.5" />
+    </svg>
+  );
+}

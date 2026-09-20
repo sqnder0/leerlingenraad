@@ -13,20 +13,22 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
   if (!event) notFound();
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-6">
-      <h1 className="text-xl font-semibold text-brand-900">Event bewerken</h1>
-      <EditEventForm
-        eventId={event.id}
-        defaultValues={{
-          title: event.title,
-          description: event.description ?? "",
-          location: event.location ?? "",
-          startAt: toLocalInputValue(event.startAt),
-          endAt: toLocalInputValue(event.endAt),
-          pointValue: String(event.pointValue),
-          status: event.status,
-        }}
-      />
+    <div className="flex flex-1 flex-col items-center gap-4 p-6">
+      <div className="w-full max-w-sm">
+        <h1 className="mb-4 text-xl font-semibold text-brand-900">Event bewerken</h1>
+        <EditEventForm
+          eventId={event.id}
+          defaultValues={{
+            title: event.title,
+            description: event.description ?? "",
+            location: event.location ?? "",
+            startAt: toLocalInputValue(event.startAt),
+            endAt: toLocalInputValue(event.endAt),
+            pointValue: String(event.pointValue),
+            status: event.status,
+          }}
+        />
+      </div>
     </div>
   );
 }

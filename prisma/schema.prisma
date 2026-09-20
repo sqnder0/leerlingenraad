@@ -48,6 +48,17 @@ enum PointsLedgerType {
   MANUAL_ADJUSTMENT
 }
 
+enum AssignmentMode {
+  /// Fair rotation across the eligible pool (approved, non-teacher) —
+  /// the original duty-rotation behavior.
+  ROTATION
+  /// Every approved member is auto-assigned to every occurrence.
+  EVERYONE
+  /// A fixed, admin-picked list of members is auto-assigned to every
+  /// occurrence (see RecurringSeriesInvite).
+  SPECIFIC
+}
+
 // ---------------------------------------------------------------------------
 // School year (archiving boundary — see plan §1)
 // ---------------------------------------------------------------------------
@@ -109,12 +120,13 @@ model User {
   accounts Account[]
   sessions Session[]
 
-  createdEvents        Event[]            @relation("EventCreatedBy")
-  createdSeries        RecurringSeries[]  @relation("SeriesCreatedBy")
+  createdEvents        Event[]                 @relation("EventCreatedBy")
+  createdSeries        RecurringSeries[]       @relation("SeriesCreatedBy")
   signups              Signup[]
-  pointsLedgerEntries  PointsLedger[]     @relation("PointsLedgerUser")
-  pointsLedgerAuthored PointsLedger[]     @relation("PointsLedgerCreatedBy")
+  pointsLedgerEntries  PointsLedger[]          @relation("PointsLedgerUser")
+  pointsLedgerAuthored PointsLedger[]          @relation("PointsLedgerCreatedBy")
   pushSubscriptions    PushSubscription[]
+  seriesInvites        RecurringSeriesInvite[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -326,8 +338,13 @@ model RecurringSeries {
   endTime   String
 
   pointValue    Int
-  /// Slots to fill per occurrence.
+  /// Slots to fill per occurrence — only meaningful for ROTATION mode.
   membersNeeded Int @default(1)
+
+  /// How each occurrence's attendees are picked — see AssignmentMode.
+  assignmentMode AssignmentMode          @default(ROTATION)
+  /// Fixed invite list for SPECIFIC mode; empty/unused otherwise.
+  invitedMembers RecurringSeriesInvite[]
 
   schoolYearId String
   schoolYear   SchoolYear @relation(fields: [schoolYearId], references: [id])
@@ -342,4 +359,19 @@ model RecurringSeries {
   updatedAt DateTime @updatedAt
 
   @@map("recurring_series")
+}
+
+/// The fixed invite list for a SPECIFIC-mode RecurringSeries — every member
+/// here gets auto-assigned to every occurrence generated for that series.
+model RecurringSeriesInvite {
+  id       String          @id @default(cuid())
+  seriesId String
+  series   RecurringSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([seriesId, userId])
+  @@map("recurring_series_invites")
 }

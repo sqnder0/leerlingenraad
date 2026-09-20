@@ -1,133 +1,36 @@
-"use client";
+import { prisma } from "@/lib/prisma";
+import { createSeries } from "@/actions/admin/series";
+import { SeriesForm } from "../series-form";
 
-import { useActionState } from "react";
-import { createSeries, type SeriesFormState } from "@/actions/admin/series";
-
-const initialState: SeriesFormState = { status: "idle" };
-const inputClass =
-  "rounded-lg border border-brand-600/25 bg-white px-3 py-2 text-sm shadow-sm outline-none transition-shadow focus:border-brand-600 focus:ring-2 focus:ring-brand-500/30";
-const DAYS = [
-  { value: 0, label: "zondag" },
-  { value: 1, label: "maandag" },
-  { value: 2, label: "dinsdag" },
-  { value: 3, label: "woensdag" },
-  { value: 4, label: "donderdag" },
-  { value: 5, label: "vrijdag" },
-  { value: 6, label: "zaterdag" },
-];
-
-export default function NewSeriesPage() {
-  const [state, formAction, isPending] = useActionState(createSeries, initialState);
+export default async function NewSeriesPage() {
+  const members = await prisma.user.findMany({
+    where: { status: "APPROVED" },
+    select: { id: true, firstName: true, lastName: true },
+    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+  });
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-6">
-      <h1 className="text-xl font-semibold text-brand-900">Nieuw terugkerend event</h1>
-
-      <form action={formAction} className="flex max-w-sm flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="title" className="text-sm text-zinc-600">
-            Titel
-          </label>
-          <input id="title" name="title" required className={inputClass} />
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label htmlFor="description" className="text-sm text-zinc-600">
-            Beschrijving (optioneel)
-          </label>
-          <textarea id="description" name="description" rows={2} className={inputClass} />
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label htmlFor="location" className="text-sm text-zinc-600">
-            Locatie (optioneel)
-          </label>
-          <input id="location" name="location" className={inputClass} />
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label htmlFor="dayOfWeek" className="text-sm text-zinc-600">
-            Dag van de week
-          </label>
-          <select id="dayOfWeek" name="dayOfWeek" defaultValue="3" className={inputClass}>
-            {DAYS.map((d) => (
-              <option key={d.value} value={d.value}>
-                {d.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex gap-3">
-          <div className="flex flex-1 flex-col gap-1">
-            <label htmlFor="startTime" className="text-sm text-zinc-600">
-              Start
-            </label>
-            <input
-              id="startTime"
-              name="startTime"
-              type="time"
-              required
-              defaultValue="12:00"
-              className={inputClass}
-            />
-          </div>
-          <div className="flex flex-1 flex-col gap-1">
-            <label htmlFor="endTime" className="text-sm text-zinc-600">
-              Einde
-            </label>
-            <input
-              id="endTime"
-              name="endTime"
-              type="time"
-              required
-              defaultValue="13:00"
-              className={inputClass}
-            />
-          </div>
-        </div>
-
-        <div className="flex gap-3">
-          <div className="flex flex-1 flex-col gap-1">
-            <label htmlFor="membersNeeded" className="text-sm text-zinc-600">
-              Personen nodig
-            </label>
-            <input
-              id="membersNeeded"
-              name="membersNeeded"
-              type="number"
-              min={1}
-              defaultValue="1"
-              required
-              className={inputClass}
-            />
-          </div>
-          <div className="flex flex-1 flex-col gap-1">
-            <label htmlFor="pointValue" className="text-sm text-zinc-600">
-              Punten
-            </label>
-            <input
-              id="pointValue"
-              name="pointValue"
-              type="number"
-              min={0}
-              defaultValue="1"
-              required
-              className={inputClass}
-            />
-          </div>
-        </div>
-
-        {state.status === "error" && <p className="text-sm text-red-600">{state.message}</p>}
-
-        <button
-          type="submit"
-          disabled={isPending}
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 hover:shadow disabled:pointer-events-none disabled:opacity-50"
-        >
-          {isPending ? "Bezig…" : "Aanmaken"}
-        </button>
-      </form>
+    <div className="flex flex-1 flex-col items-center gap-4 p-6">
+      <div className="w-full max-w-sm">
+        <h1 className="mb-4 text-xl font-semibold text-brand-900">Nieuw terugkerend event</h1>
+        <SeriesForm
+          action={createSeries}
+          submitLabel="Aanmaken"
+          members={members}
+          defaultValues={{
+            title: "",
+            description: "",
+            location: "",
+            dayOfWeek: "3",
+            startTime: "12:00",
+            endTime: "13:00",
+            pointValue: "1",
+            membersNeeded: "1",
+            assignmentMode: "ROTATION",
+            inviteUserIds: [],
+          }}
+        />
+      </div>
     </div>
   );
 }

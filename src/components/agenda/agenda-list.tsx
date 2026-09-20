@@ -3,7 +3,7 @@
 import { useOptimistic, useState, useTransition } from "react";
 import Link from "next/link";
 import { publishEvent } from "@/actions/admin/events";
-import { SendIcon } from "@/components/icons";
+import { SendIcon, SpinnerIcon } from "@/components/icons";
 
 export type AgendaEvent = {
   id: string;
@@ -19,17 +19,21 @@ export function AgendaList({ events, isAdmin }: { events: AgendaEvent[]; isAdmin
   const [items, markPublished] = useOptimistic(events, (state, eventId: string) =>
     state.map((e) => (e.id === eventId ? { ...e, isDraft: false } : e)),
   );
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [pendingId, setPendingId] = useState<string | null>(null);
 
   function publish(eventId: string) {
     setError(null);
+    setPendingId(eventId);
     startTransition(async () => {
-      markPublished(eventId);
       try {
         await publishEvent(eventId);
+        markPublished(eventId);
       } catch {
         setError("Publiceren is mislukt, probeer opnieuw.");
+      } finally {
+        setPendingId(null);
       }
     });
   }
@@ -79,11 +83,15 @@ export function AgendaList({ events, isAdmin }: { events: AgendaEvent[]; isAdmin
             {isAdmin && event.isDraft && (
               <button
                 type="button"
-                disabled={isPending}
+                disabled={pendingId === event.id}
                 onClick={() => publish(event.id)}
-                className="flex w-fit items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 disabled:pointer-events-none disabled:opacity-50"
+                className="flex w-fit items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 disabled:pointer-events-none disabled:opacity-70"
               >
-                <SendIcon className="h-3.5 w-3.5" />
+                {pendingId === event.id ? (
+                  <SpinnerIcon className="h-3.5 w-3.5" />
+                ) : (
+                  <SendIcon className="h-3.5 w-3.5" />
+                )}
                 Publiceren
               </button>
             )}

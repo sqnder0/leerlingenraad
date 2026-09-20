@@ -3,9 +3,17 @@ import { prisma } from "@/lib/prisma";
 import { toggleSeriesActive } from "@/actions/admin/series";
 
 const DAYS = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
+const MODE_LABELS: Record<string, string> = {
+  ROTATION: "Rotatie",
+  EVERYONE: "Iedereen",
+  SPECIFIC: "Specifiek",
+};
 
 export default async function AdminSeriesPage() {
-  const series = await prisma.recurringSeries.findMany({ orderBy: { title: "asc" } });
+  const series = await prisma.recurringSeries.findMany({
+    orderBy: { title: "asc" },
+    include: { _count: { select: { invitedMembers: true } } },
+  });
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
@@ -36,7 +44,7 @@ export default async function AdminSeriesPage() {
                 <th className="py-2 pr-4">Titel</th>
                 <th className="py-2 pr-4">Dag</th>
                 <th className="py-2 pr-4">Tijd</th>
-                <th className="py-2 pr-4">Personen</th>
+                <th className="py-2 pr-4">Wie</th>
                 <th className="py-2 pr-4">Punten</th>
                 <th className="py-2 pr-4" />
               </tr>
@@ -47,12 +55,23 @@ export default async function AdminSeriesPage() {
                   key={s.id}
                   className="border-b border-brand-600/10 transition-colors hover:bg-brand-600/5"
                 >
-                  <td className="py-2 pr-4">{s.title}</td>
+                  <td className="py-2 pr-4">
+                    <Link
+                      href={`/admin/series/${s.id}/edit`}
+                      className="underline underline-offset-2"
+                    >
+                      {s.title}
+                    </Link>
+                  </td>
                   <td className="py-2 pr-4">{DAYS[s.dayOfWeek]}</td>
                   <td className="py-2 pr-4">
                     {s.startTime}–{s.endTime}
                   </td>
-                  <td className="py-2 pr-4">{s.membersNeeded}</td>
+                  <td className="py-2 pr-4">
+                    {MODE_LABELS[s.assignmentMode]}
+                    {s.assignmentMode === "ROTATION" && ` (${s.membersNeeded})`}
+                    {s.assignmentMode === "SPECIFIC" && ` (${s._count.invitedMembers})`}
+                  </td>
                   <td className="py-2 pr-4">{s.pointValue}</td>
                   <td className="py-2 pr-4">
                     <form action={toggleSeriesActive.bind(null, s.id, !s.isActive)}>

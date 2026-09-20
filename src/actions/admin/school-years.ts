@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/current-user";
 import { prisma } from "@/lib/prisma";
+import { ensureDefaultTrimesters } from "@/lib/school-year";
 
 const schoolYearSchema = z.object({
   label: z.string().trim().min(1, "Naam is verplicht."),
@@ -44,12 +45,13 @@ export async function startNewSchoolYear(
     return { status: "error", message: "Er bestaat al een schooljaar met die naam." };
   }
 
-  await prisma.$transaction([
+  const [, schoolYear] = await prisma.$transaction([
     prisma.schoolYear.updateMany({ where: { isActive: true }, data: { isActive: false } }),
     prisma.schoolYear.create({
       data: { label: parsed.data.label, startsAt, endsAt, isActive: true },
     }),
   ]);
+  await ensureDefaultTrimesters(schoolYear.id, schoolYear.startsAt, schoolYear.endsAt);
 
   revalidatePath("/admin/school-years");
   revalidatePath("/admin/points");

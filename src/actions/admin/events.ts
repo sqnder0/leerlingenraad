@@ -71,6 +71,20 @@ export async function publishEvent(eventId: string) {
   revalidatePath("/events");
 }
 
+/**
+ * Real delete, not just a status change — removes the event and its
+ * signups (cascade). Points-ledger entries tied to it keep their history
+ * but lose the event reference (onDelete: SetNull on PointsLedger.event).
+ */
+export async function deleteEvent(eventId: string) {
+  await requireAdmin();
+  await prisma.event.delete({ where: { id: eventId } });
+
+  revalidatePath("/admin/events");
+  revalidatePath("/events");
+  revalidatePath("/dashboard");
+}
+
 export async function updateEvent(
   eventId: string,
   _prevState: EventFormState,

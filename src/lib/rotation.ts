@@ -68,10 +68,45 @@ function combineDateAndTime(date: Date, hhmm: string): Date {
 }
 
 /**
- * Generates this trimester's occurrences for a series and fairly assigns
- * each one, per docs/plan.md's duty-rotation algorithm. Idempotent: an
- * occurrence already generated for a given date is skipped, so re-running
- * after adding a series mid-trimester only fills in what's missing.
+ * Which user ids get auto-assigned to a newly-created occurrence, per the
+ * series' AssignmentMode:
+ * - ROTATION: `membersNeeded` least-assigned people from the eligible pool.
+ * - EVERYONE: every approved member (teachers included — this isn't a duty
+ *   burden to distribute fairly, it's "the whole group is invited").
+ * - SPECIFIC: the series' fixed invite list, exactly as configured.
+ */
+async function pickAttendees(
+  series: { id: string; assignmentMode: string; membersNeeded: number },
+  stats: Stats,
+): Promise<string[]> {
+  switch (series.assignmentMode) {
+    case "EVERYONE": {
+      const members = await prisma.user.findMany({
+        where: { status: "APPROVED" },
+        select: { id: true },
+      });
+      return members.map((m) => m.id);
+    }
+    case "SPECIFIC": {
+      const invites = await prisma.recurringSeriesInvite.findMany({
+        where: { seriesId: series.id },
+        select: { userId: true },
+      });
+      return invites.map((i) => i.userId);
+    }
+    case "ROTATION":
+    default:
+      return pickLeastAssigned(stats, new Set(), series.membersNeeded);
+  }
+}
+
+/**
+ * Generates this trimester's occurrences for a series and assigns each
+ * one's attendees per its AssignmentMode (see pickAttendees), per
+ * docs/plan.md's duty-rotation algorithm for ROTATION series. Idempotent:
+ * an occurrence already generated for a given date is skipped, so
+ * re-running after adding a series mid-trimester only fills in what's
+ * missing.
  */
 export async function generateRosterForSeries(
   seriesId: string,
@@ -84,7 +119,7 @@ export async function generateRosterForSeries(
   ]);
 
   const dates = occurrenceDates(trimester.startsAt, trimester.endsAt, series.dayOfWeek);
-  const stats = await getAssignmentStats(trimesterId);
+  const stats = series.assignmentMode === "ROTATION" ? await getAssignmentStats(trimesterId) : null;
 
   let occurrencesCreated = 0;
   for (const date of dates) {
@@ -113,12 +148,12 @@ export async function generateRosterForSeries(
       },
     });
 
-    const picked = pickLeastAssigned(stats, new Set(), series.membersNeeded);
+    const picked = await pickAttendees(series, stats ?? new Map());
     for (const userId of picked) {
       await prisma.signup.create({
         data: { eventId: event.id, userId, response: "GOING", autoAssigned: true },
       });
-      const entry = stats.get(userId);
+      const entry = stats?.get(userId);
       if (entry) {
         entry.count += 1;
         entry.lastAssignedAt = startAt;
@@ -133,15 +168,17 @@ export async function generateRosterForSeries(
 /**
  * Finds a replacement for one vacated slot (a member declined an
  * autoAssigned signup), picking whoever in the pool currently has the
- * fewest assigned slots this trimester. Returns the replacement's user id,
- * or null if no eligible replacement exists (slot stays open).
+ * fewest assigned slots this trimester. Only applies to ROTATION series —
+ * EVERYONE/SPECIFIC have no "backfill" concept, declining just leaves that
+ * one person off, so this returns null immediately for those.
  */
 export async function reassignSlot(eventId: string, declinedUserId: string) {
   const event = await prisma.event.findUniqueOrThrow({
     where: { id: eventId },
-    include: { signups: { where: { response: "GOING" } } },
+    include: { signups: { where: { response: "GOING" } }, series: true },
   });
   if (!event.trimesterId) return null; // not a rotation event
+  if (!event.series || event.series.assignmentMode !== "ROTATION") return null;
 
   const stats = await getAssignmentStats(event.trimesterId);
   const exclude = new Set([declinedUserId, ...event.signups.map((s) => s.userId)]);

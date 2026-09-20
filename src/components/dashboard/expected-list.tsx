@@ -2,28 +2,39 @@
 
 import { useOptimistic, useState, useTransition } from "react";
 import Link from "next/link";
-import { declineAssignment } from "@/actions/member-actions";
+import { rsvp, declineAssignment } from "@/actions/member-actions";
+import { useConfirmFlash } from "@/hooks/use-confirm-flash";
+import { SpinnerIcon } from "@/components/icons";
 
 export type ExpectedSignup = {
   id: string;
   eventId: string;
   title: string;
   when: string;
+  /// ROTATION declines trigger a fairness backfill; EVERYONE/SPECIFIC just
+  /// flip the RSVP, same as an ordinary opt-in event.
+  assignmentMode: "ROTATION" | "EVERYONE" | "SPECIFIC";
 };
 
 export function ExpectedList({ signups }: { signups: ExpectedSignup[] }) {
   const [items, removeItem] = useOptimistic(signups, (state, id: string) =>
     state.filter((s) => s.id !== id),
   );
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const { pendingKey, setPendingKey } = useConfirmFlash();
 
-  function decline(signupId: string) {
+  function decline(signup: ExpectedSignup) {
     setError(null);
+    setPendingKey(signup.id);
     startTransition(async () => {
-      removeItem(signupId);
       try {
-        await declineAssignment(signupId);
+        if (signup.assignmentMode === "ROTATION") {
+          await declineAssignment(signup.id);
+        } else {
+          await rsvp(signup.eventId, "NOT_GOING");
+        }
+        removeItem(signup.id);
       } catch {
         setError("Afmelden is mislukt, probeer opnieuw.");
       }
@@ -49,10 +60,11 @@ export function ExpectedList({ signups }: { signups: ExpectedSignup[] }) {
             </Link>
             <button
               type="button"
-              disabled={isPending}
-              onClick={() => decline(signup.id)}
-              className="rounded-lg border border-brand-600/30 px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors hover:bg-brand-600/5 disabled:pointer-events-none disabled:opacity-50"
+              disabled={pendingKey === signup.id}
+              onClick={() => decline(signup)}
+              className="flex items-center gap-1.5 rounded-lg border border-brand-600/30 px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors hover:bg-brand-600/5 disabled:pointer-events-none disabled:opacity-70"
             >
+              {pendingKey === signup.id && <SpinnerIcon className="h-3.5 w-3.5" />}
               Ik kan niet
             </button>
           </li>

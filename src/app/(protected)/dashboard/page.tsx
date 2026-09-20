@@ -86,7 +86,7 @@ export default async function DashboardPage() {
         response: "GOING",
         event: { startAt: { gte: now }, status: "PUBLISHED" },
       },
-      include: { event: true },
+      include: { event: { include: { series: { select: { assignmentMode: true } } } } },
       orderBy: { event: { startAt: "asc" } },
       take: 10,
     }),
@@ -104,6 +104,7 @@ export default async function DashboardPage() {
     eventId: s.eventId,
     title: s.event.title,
     when: formatWhen(s.event.startAt),
+    assignmentMode: s.event.series?.assignmentMode ?? "ROTATION",
   }));
   const optInEvents: OptInEvent[] = optInEventRows.map((e) => ({
     id: e.id,

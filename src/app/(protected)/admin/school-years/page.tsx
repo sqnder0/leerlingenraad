@@ -29,6 +29,12 @@ export default async function SchoolYearsPage() {
         ))}
       </ul>
 
+      <p className="text-sm text-zinc-500">
+        Dit gebeurt sinds kort ook automatisch: op 1 september wordt het lopende schooljaar
+        gearchiveerd en start het nieuwe vanzelf, met 3 gelijke trimesters. Wil je het nu al manueel
+        forceren of andere data instellen, kan hieronder.
+      </p>
+
       <div className="rounded-xl border border-brand-600/15 bg-brand-50/50 p-4">
         <p className="mb-1 font-medium text-brand-900">Archiveer huidig & start nieuw schooljaar</p>
         <p className="mb-4 text-sm text-zinc-600">

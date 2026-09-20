@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getBalance, getLedgerEntries } from "@/lib/data/points";
 import { AdjustmentForm } from "./adjustment-form";
+import { EditMemberForm } from "./edit-member-form";
 
 export default async function MemberDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -35,7 +36,19 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
         <p className="text-2xl font-semibold text-brand-900">{balance}</p>
       </div>
 
-      <AdjustmentForm userId={member.id} />
+      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <EditMemberForm
+          userId={member.id}
+          defaultValues={{
+            firstName: member.firstName,
+            lastName: member.lastName,
+            classGroup: member.classGroup ?? "",
+            role: member.role,
+            isTeacher: member.isTeacher,
+          }}
+        />
+        <AdjustmentForm userId={member.id} />
+      </div>
 
       <div>
         <p className="mb-2 text-sm font-medium text-zinc-500">Geschiedenis</p>
