@@ -129,3 +129,23 @@ export async function extendSeriesRosterAction(seriesId: string) {
   revalidatePath("/events");
   revalidatePath("/dashboard");
 }
+
+/**
+ * Deletes every occurrence ever generated for a series (past and future)
+ * and deactivates it, so the next periodic/"Genereer nu" tick doesn't just
+ * regenerate them — reactivating later starts a clean rolling window from
+ * scratch (extendSeriesRoster finds no existing occurrences to resume
+ * from). Points-ledger history tied to those events survives (onDelete:
+ * SetNull), same as a single deleteEvent.
+ */
+export async function deleteAllSeriesEvents(seriesId: string) {
+  await requireAdmin();
+  await prisma.$transaction([
+    prisma.event.deleteMany({ where: { seriesId } }),
+    prisma.recurringSeries.update({ where: { id: seriesId }, data: { isActive: false } }),
+  ]);
+  revalidatePath("/admin/series");
+  revalidatePath("/admin/events");
+  revalidatePath("/events");
+  revalidatePath("/dashboard");
+}

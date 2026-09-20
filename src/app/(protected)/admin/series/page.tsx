@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { toggleSeriesActive, extendSeriesRosterAction } from "@/actions/admin/series";
+import { DeleteSeriesEventsButton } from "@/components/admin/delete-series-events-button";
 
 const DAYS = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
 const MODE_LABELS: Record<string, string> = {
@@ -12,7 +13,7 @@ const MODE_LABELS: Record<string, string> = {
 export default async function AdminSeriesPage() {
   const series = await prisma.recurringSeries.findMany({
     orderBy: { title: "asc" },
-    include: { _count: { select: { invitedMembers: true } } },
+    include: { _count: { select: { invitedMembers: true, events: true } } },
   });
 
   return (
@@ -91,6 +92,11 @@ export default async function AdminSeriesPage() {
                           Genereer nu
                         </button>
                       </form>
+                    )}
+                    {s._count.events > 0 && (
+                      <span className="ml-3">
+                        <DeleteSeriesEventsButton seriesId={s.id} seriesTitle={s.title} />
+                      </span>
                     )}
                   </td>
                 </tr>

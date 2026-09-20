@@ -20,6 +20,7 @@ const eslintConfig = defineConfig([
       "src/app/(protected)/admin/**",
       "src/actions/admin/**",
       "src/lib/rotation.ts",
+      "src/lib/rotation.test.ts",
       "src/app/(protected)/dashboard/page.tsx",
     ],
     rules: {

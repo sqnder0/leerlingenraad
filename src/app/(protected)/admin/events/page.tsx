@@ -24,13 +24,14 @@ export default async function AdminEventsPage({
     ? await prisma.event.findMany({
         where: { schoolYearId: selectedYear.id },
         orderBy: { startAt: "desc" },
-        include: { series: { select: { title: true } } },
+        include: { series: { select: { id: true, title: true } } },
       })
     : [];
 
   const rows: AdminEventRow[] = events.map((event) => ({
     id: event.id,
     title: event.title,
+    seriesId: event.series?.id ?? null,
     seriesTitle: event.series?.title ?? null,
     when: new Intl.DateTimeFormat("nl-BE", DATE_FORMAT).format(event.startAt),
     status: event.status,

@@ -3,20 +3,26 @@
 import { useOptimistic, useState, useTransition } from "react";
 import Link from "next/link";
 import { deleteEvent } from "@/actions/admin/events";
+import { deleteAllSeriesEvents } from "@/actions/admin/series";
 import { SpinnerIcon } from "@/components/icons";
 
 export type AdminEventRow = {
   id: string;
   title: string;
+  seriesId: string | null;
   seriesTitle: string | null;
   when: string;
   status: string;
   pointValue: number;
 };
 
+type RemoveAction = { type: "one"; id: string } | { type: "series"; seriesId: string };
+
 export function AdminEventsList({ events }: { events: AdminEventRow[] }) {
-  const [items, removeItem] = useOptimistic(events, (state, id: string) =>
-    state.filter((e) => e.id !== id),
+  const [items, removeItem] = useOptimistic(events, (state, action: RemoveAction) =>
+    action.type === "one"
+      ? state.filter((e) => e.id !== action.id)
+      : state.filter((e) => e.seriesId !== action.seriesId),
   );
   const [, startTransition] = useTransition();
   const [pendingId, setPendingId] = useState<string | null>(null);
@@ -31,7 +37,31 @@ export function AdminEventsList({ events }: { events: AdminEventRow[] }) {
     startTransition(async () => {
       try {
         await deleteEvent(event.id);
-        removeItem(event.id);
+        removeItem({ type: "one", id: event.id });
+      } catch {
+        setError("Verwijderen is mislukt, probeer opnieuw.");
+      } finally {
+        setPendingId(null);
+      }
+    });
+  }
+
+  function removeSeries(event: AdminEventRow) {
+    if (!event.seriesId) return;
+    if (
+      !window.confirm(
+        `Alle events van "${event.seriesTitle}" definitief verwijderen (verleden en toekomst)? De reeks wordt ook gedeactiveerd. Dit kan niet ongedaan worden.`,
+      )
+    ) {
+      return;
+    }
+    setError(null);
+    setPendingId(event.id);
+    const seriesId = event.seriesId;
+    startTransition(async () => {
+      try {
+        await deleteAllSeriesEvents(seriesId);
+        removeItem({ type: "series", seriesId });
       } catch {
         setError("Verwijderen is mislukt, probeer opnieuw.");
       } finally {
@@ -97,6 +127,16 @@ export function AdminEventsList({ events }: { events: AdminEventRow[] }) {
                     {pendingId === event.id && <SpinnerIcon className="h-3.5 w-3.5" />}
                     Verwijderen
                   </button>
+                  {event.seriesId && (
+                    <button
+                      type="button"
+                      disabled={pendingId === event.id}
+                      onClick={() => removeSeries(event)}
+                      className="ml-3 inline-flex items-center gap-1 text-red-600 underline underline-offset-2 disabled:pointer-events-none disabled:opacity-70"
+                    >
+                      Verwijder hele reeks
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
