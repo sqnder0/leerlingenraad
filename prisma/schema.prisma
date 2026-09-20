@@ -117,6 +117,12 @@ model User {
   approvedTo   User[]    @relation("UserApprovals")
   approvedAt   DateTime?
 
+  /// Set when this account was self-registered through an invite link
+  /// rather than created directly by an admin. Kept on the user even if
+  /// the invite is later deleted, so approval history survives cleanup.
+  invitedViaId String?
+  invitedVia   InviteLink? @relation("InviteLinkRegistrations", fields: [invitedViaId], references: [id], onDelete: SetNull)
+
   accounts Account[]
   sessions Session[]
 
@@ -127,6 +133,7 @@ model User {
   pointsLedgerAuthored PointsLedger[]          @relation("PointsLedgerCreatedBy")
   pushSubscriptions    PushSubscription[]
   seriesInvites        RecurringSeriesInvite[]
+  invitesCreated       InviteLink[]            @relation("InviteLinksCreated")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -178,6 +185,35 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+/// Admin-generated invite for self-registration — the only way an account
+/// can be created without an admin filling in the "nieuw lid" form
+/// themselves. Registering through a valid link creates a PENDING user,
+/// same as the admin-created path; it still needs approval.
+model InviteLink {
+  id String @id @default(cuid())
+
+  /// URL-safe random token — the public /invite/[code] route param.
+  code String @unique
+  /// Admin's own note for telling links apart in the list, e.g. "5A - sept".
+  label String?
+
+  createdById String
+  createdBy   User   @relation("InviteLinksCreated", fields: [createdById], references: [id], onDelete: Cascade)
+
+  /// Null = never expires.
+  expiresAt DateTime?
+  /// Null = unlimited registrations.
+  maxUses   Int?
+  usedCount Int       @default(0)
+  revokedAt DateTime?
+
+  registeredUsers User[] @relation("InviteLinkRegistrations")
+
+  createdAt DateTime @default(now())
+
+  @@map("invite_links")
 }
 
 // ---------------------------------------------------------------------------

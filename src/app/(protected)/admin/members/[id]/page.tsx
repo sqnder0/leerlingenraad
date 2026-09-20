@@ -8,7 +8,7 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
   const { id } = await params;
 
   const [member, activeSchoolYear] = await Promise.all([
-    prisma.user.findUnique({ where: { id } }),
+    prisma.user.findUnique({ where: { id }, include: { invitedVia: { select: { label: true } } } }),
     prisma.schoolYear.findFirst({ where: { isActive: true } }),
   ]);
   if (!member || !activeSchoolYear) notFound();
@@ -28,6 +28,10 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
           @{member.username} · {member.role}
           {member.isTeacher && " · leerkracht"} · {member.status}
           {member.classGroup && ` · ${member.classGroup}`}
+          {member.invitedVia &&
+            (member.invitedVia.label
+              ? ` · via uitnodiging "${member.invitedVia.label}"`
+              : " · via uitnodigingslink")}
         </p>
       </div>
 

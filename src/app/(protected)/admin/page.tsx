@@ -21,6 +21,16 @@ export default async function AdminHomePage() {
       </Link>
 
       <Link
+        href="/admin/invites"
+        className="rounded-xl border border-brand-600/15 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-600/30 hover:bg-brand-600/5 hover:shadow-md"
+      >
+        <p className="font-medium text-brand-900">Uitnodigingen</p>
+        <p className="text-sm text-zinc-600">
+          Links maken om nieuwe leden zichzelf te laten registreren.
+        </p>
+      </Link>
+
+      <Link
         href="/admin/events"
         className="rounded-xl border border-brand-600/15 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-600/30 hover:bg-brand-600/5 hover:shadow-md"
       >
