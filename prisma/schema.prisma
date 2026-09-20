@@ -76,7 +76,6 @@ model SchoolYear {
 
   events          Event[]
   pointsLedger    PointsLedger[]
-  trimesters      Trimester[]
   recurringSeries RecurringSeries[]
 
   createdAt DateTime @default(now())
@@ -235,11 +234,8 @@ model Event {
   schoolYear   SchoolYear @relation(fields: [schoolYearId], references: [id])
 
   /// Set only on occurrences created by the roster-generation action (M3).
-  seriesId    String?
-  series      RecurringSeries? @relation(fields: [seriesId], references: [id])
-  /// Set only on occurrences created by the roster-generation action (M3).
-  trimesterId String?
-  trimester   Trimester?       @relation(fields: [trimesterId], references: [id])
+  seriesId String?
+  series   RecurringSeries? @relation(fields: [seriesId], references: [id])
 
   createdById String
   createdBy   User   @relation("EventCreatedBy", fields: [createdById], references: [id])
@@ -308,7 +304,9 @@ model PushSubscription {
 }
 
 // ---------------------------------------------------------------------------
-// Points (admin-only — see plan §3 for how this stays out of member routes)
+// Points (individual ledger detail is admin-only — see plan §3 — but a
+// member's own balance and the school-year average are shown on the
+// dashboard so members can see how much they should still contribute)
 // ---------------------------------------------------------------------------
 
 model PointsLedger {
@@ -340,25 +338,8 @@ model PointsLedger {
 }
 
 // ---------------------------------------------------------------------------
-// Duty rotation (M3): weekly recurring events with fair auto-assignment
+// Duty rotation: weekly recurring events with fair, points-based auto-assignment
 // ---------------------------------------------------------------------------
-
-model Trimester {
-  id       String   @id @default(cuid())
-  label    String // e.g. "Trimester 1"
-  startsAt DateTime
-  endsAt   DateTime
-
-  schoolYearId String
-  schoolYear   SchoolYear @relation(fields: [schoolYearId], references: [id])
-
-  events Event[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("trimesters")
-}
 
 model RecurringSeries {
   id          String  @id @default(cuid())
@@ -376,6 +357,10 @@ model RecurringSeries {
   pointValue    Int
   /// Slots to fill per occurrence — only meaningful for ROTATION mode.
   membersNeeded Int @default(1)
+  /// Rolling generation horizon: occurrences are kept generated this many
+  /// weeks into the future (see src/lib/rotation.ts extendSeriesRoster),
+  /// instead of the old generate-a-whole-trimester-at-once model.
+  weeksAhead    Int @default(4)
 
   /// How each occurrence's attendees are picked — see AssignmentMode.
   assignmentMode AssignmentMode          @default(ROTATION)

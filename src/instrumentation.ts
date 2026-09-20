@@ -8,6 +8,7 @@ export async function register() {
 
   const { sendUpcomingEventReminders } = await import("@/lib/reminders");
   const { ensureCurrentSchoolYear } = await import("@/lib/school-year");
+  const { extendAllActiveSeriesRosters } = await import("@/lib/rotation");
 
   const runReminders = () =>
     sendUpcomingEventReminders().catch((err) => {
@@ -27,4 +28,16 @@ export async function register() {
   const SCHOOL_YEAR_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
   setTimeout(runSchoolYearCheck, 15 * 1000);
   setInterval(runSchoolYearCheck, SCHOOL_YEAR_CHECK_INTERVAL_MS);
+
+  // Tops up every active series' rolling "weeks ahead" window (see
+  // lib/rotation.ts) — replaces the old manual generate-per-trimester
+  // flow. Idempotent (skips dates already generated), so running this a
+  // few times a day is harmless.
+  const runRosterExtension = () =>
+    extendAllActiveSeriesRosters().catch((err) => {
+      console.error("Rooster aanvullen mislukt:", err);
+    });
+  const ROSTER_EXTENSION_INTERVAL_MS = 6 * 60 * 60 * 1000;
+  setTimeout(runRosterExtension, 30 * 1000);
+  setInterval(runRosterExtension, ROSTER_EXTENSION_INTERVAL_MS);
 }

@@ -36,6 +36,7 @@ export default async function EditSeriesPage({ params }: { params: Promise<{ id:
             endTime: series.endTime,
             pointValue: String(series.pointValue),
             membersNeeded: String(series.membersNeeded),
+            weeksAhead: String(series.weeksAhead),
             assignmentMode: series.assignmentMode,
             inviteUserIds: series.invitedMembers.map((m) => m.userId),
           }}

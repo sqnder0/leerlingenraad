@@ -53,10 +53,6 @@ export default async function AdminEventsPage({
         Terugkerende duty-events beheer je via{" "}
         <Link href="/admin/series" className="underline">
           Terugkerende events
-        </Link>{" "}
-        en{" "}
-        <Link href="/admin/trimesters" className="underline">
-          Trimesters
         </Link>
         .
       </p>

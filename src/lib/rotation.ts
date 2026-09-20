@@ -1,7 +1,8 @@
-import { addDays, startOfDay, isBefore } from "date-fns";
+import { addDays, addWeeks, startOfDay, isBefore } from "date-fns";
 import { prisma } from "@/lib/prisma";
+import { getProjectedBalances } from "@/lib/data/points";
 
-type Stats = Map<string, { count: number; lastAssignedAt: Date | null }>;
+type Stats = Map<string, { balance: number; lastAssignedAt: Date | null }>;
 
 /** The duty rotation pool, per docs/plan.md: approved, non-teacher users. */
 export async function getEligiblePool() {
@@ -13,22 +14,29 @@ export async function getEligiblePool() {
 }
 
 /**
- * Each eligible member's autoAssigned GOING count within the trimester
- * (across every series, so fairness is holistic, not siloed per duty) plus
- * the date of their most recent one, for least-recently-assigned tie-breaks.
+ * Each eligible member's projected points balance this school year
+ * (current balance plus already-scheduled-but-not-yet-awarded points —
+ * see getProjectedBalances) plus the date of their most recent auto
+ * assignment, for tie-breaks. Scoped to the whole school year (not a
+ * trimester) so fairness converges across the full year, matching how
+ * points themselves are school-year scoped.
  */
-async function getAssignmentStats(trimesterId: string): Promise<Stats> {
+async function getAssignmentStats(schoolYearId: string): Promise<Stats> {
   const pool = await getEligiblePool();
-  const stats: Stats = new Map(pool.map((u) => [u.id, { count: 0, lastAssignedAt: null }]));
+  const ids = pool.map((u) => u.id);
+  const balances = await getProjectedBalances(schoolYearId, ids);
+
+  const stats: Stats = new Map(
+    pool.map((u) => [u.id, { balance: balances.get(u.id) ?? 0, lastAssignedAt: null }]),
+  );
 
   const signups = await prisma.signup.findMany({
-    where: { autoAssigned: true, response: "GOING", event: { trimesterId } },
+    where: { autoAssigned: true, response: "GOING", event: { schoolYearId } },
     select: { userId: true, event: { select: { startAt: true } } },
   });
   for (const s of signups) {
     const entry = stats.get(s.userId);
     if (!entry) continue; // no longer in the eligible pool
-    entry.count += 1;
     if (!entry.lastAssignedAt || s.event.startAt > entry.lastAssignedAt) {
       entry.lastAssignedAt = s.event.startAt;
     }
@@ -36,11 +44,16 @@ async function getAssignmentStats(trimesterId: string): Promise<Stats> {
   return stats;
 }
 
-function pickLeastAssigned(stats: Stats, excludeIds: Set<string>, n: number): string[] {
+/** Ascending by projected balance (lowest = picked first), then by longest-idle. */
+export function pickLowestProjectedBalance(
+  stats: Stats,
+  excludeIds: Set<string>,
+  n: number,
+): string[] {
   const candidates = [...stats.entries()]
     .filter(([id]) => !excludeIds.has(id))
     .sort((a, b) => {
-      if (a[1].count !== b[1].count) return a[1].count - b[1].count;
+      if (a[1].balance !== b[1].balance) return a[1].balance - b[1].balance;
       const at = a[1].lastAssignedAt?.getTime() ?? 0;
       const bt = b[1].lastAssignedAt?.getTime() ?? 0;
       return at - bt; // never assigned (0) sorts first
@@ -48,12 +61,12 @@ function pickLeastAssigned(stats: Stats, excludeIds: Set<string>, n: number): st
   return candidates.slice(0, n).map(([id]) => id);
 }
 
-/** Every date in [trimesterStart, trimesterEnd] matching dayOfWeek. */
-function occurrenceDates(trimesterStart: Date, trimesterEnd: Date, dayOfWeek: number): Date[] {
+/** Every date matching dayOfWeek in [from, to], inclusive. */
+export function occurrenceDatesInRange(from: Date, to: Date, dayOfWeek: number): Date[] {
   const dates: Date[] = [];
-  let d = startOfDay(trimesterStart);
+  let d = startOfDay(from);
   while (d.getDay() !== dayOfWeek) d = addDays(d, 1);
-  while (!isBefore(trimesterEnd, d)) {
+  while (!isBefore(to, d)) {
     dates.push(d);
     d = addDays(d, 7);
   }
@@ -70,7 +83,13 @@ function combineDateAndTime(date: Date, hhmm: string): Date {
 /**
  * Which user ids get auto-assigned to a newly-created occurrence, per the
  * series' AssignmentMode:
- * - ROTATION: `membersNeeded` least-assigned people from the eligible pool.
+ * - ROTATION: `membersNeeded` people, lowest projected points balance
+ *   first. `previousPicks` (whoever filled this series' immediately
+ *   preceding occurrence) is excluded so the same person can't be handed
+ *   two occurrences in a row back to back ("don't spam a person in") —
+ *   unless the eligible pool is too small to fill the slots without them,
+ *   in which case the exclusion is dropped rather than leaving a slot
+ *   empty.
  * - EVERYONE: every approved member (teachers included — this isn't a duty
  *   burden to distribute fairly, it's "the whole group is invited").
  * - SPECIFIC: the series' fixed invite list, exactly as configured.
@@ -78,6 +97,7 @@ function combineDateAndTime(date: Date, hhmm: string): Date {
 async function pickAttendees(
   series: { id: string; assignmentMode: string; membersNeeded: number },
   stats: Stats,
+  previousPicks: Set<string>,
 ): Promise<string[]> {
   switch (series.assignmentMode) {
     case "EVERYONE": {
@@ -95,43 +115,60 @@ async function pickAttendees(
       return invites.map((i) => i.userId);
     }
     case "ROTATION":
-    default:
-      return pickLeastAssigned(stats, new Set(), series.membersNeeded);
+    default: {
+      const withoutRepeat = pickLowestProjectedBalance(stats, previousPicks, series.membersNeeded);
+      if (withoutRepeat.length >= series.membersNeeded) return withoutRepeat;
+      // Pool too small to skip last time's picks and still fill the slots.
+      return pickLowestProjectedBalance(stats, new Set(), series.membersNeeded);
+    }
   }
 }
 
 /**
- * Generates this trimester's occurrences for a series and assigns each
- * one's attendees per its AssignmentMode (see pickAttendees), per
- * docs/plan.md's duty-rotation algorithm for ROTATION series. Idempotent:
- * an occurrence already generated for a given date is skipped, so
- * re-running after adding a series mid-trimester only fills in what's
- * missing.
+ * Keeps a series' occurrences generated `series.weeksAhead` weeks into the
+ * future, picking up wherever it last left off (idempotent — an occurrence
+ * already generated for a given date is never touched again). This
+ * replaces the old generate-a-whole-trimester-at-once flow: call it
+ * whenever the rolling window should be topped up — the periodic job in
+ * instrumentation.ts, or right after a series is created/edited.
  */
-export async function generateRosterForSeries(
-  seriesId: string,
-  trimesterId: string,
-  createdById: string,
-) {
-  const [series, trimester] = await Promise.all([
-    prisma.recurringSeries.findUniqueOrThrow({ where: { id: seriesId } }),
-    prisma.trimester.findUniqueOrThrow({ where: { id: trimesterId } }),
-  ]);
+export async function extendSeriesRoster(seriesId: string) {
+  const series = await prisma.recurringSeries.findUniqueOrThrow({ where: { id: seriesId } });
+  if (!series.isActive) return { occurrencesCreated: 0 };
 
-  const dates = occurrenceDates(trimester.startsAt, trimester.endsAt, series.dayOfWeek);
-  const stats = series.assignmentMode === "ROTATION" ? await getAssignmentStats(trimesterId) : null;
+  const now = new Date();
+  const horizon = addWeeks(now, series.weeksAhead);
+
+  const latestExisting = await prisma.event.findFirst({
+    where: { seriesId },
+    orderBy: { startAt: "desc" },
+    select: { id: true, startAt: true },
+  });
+
+  const dates = occurrenceDatesInRange(
+    latestExisting ? addDays(latestExisting.startAt, 1) : now,
+    horizon,
+    series.dayOfWeek,
+  );
+  if (dates.length === 0) return { occurrencesCreated: 0 };
+
+  const stats =
+    series.assignmentMode === "ROTATION" ? await getAssignmentStats(series.schoolYearId) : null;
+
+  let previousPicks = new Set<string>();
+  if (series.assignmentMode === "ROTATION" && latestExisting) {
+    const prevSignups = await prisma.signup.findMany({
+      where: { eventId: latestExisting.id, autoAssigned: true, response: "GOING" },
+      select: { userId: true },
+    });
+    previousPicks = new Set(prevSignups.map((s) => s.userId));
+  }
 
   let occurrencesCreated = 0;
   for (const date of dates) {
     const startAt = combineDateAndTime(date, series.startTime);
-
-    const existing = await prisma.event.findFirst({
-      where: { seriesId, trimesterId, startAt },
-      select: { id: true },
-    });
-    if (existing) continue;
-
     const endAt = combineDateAndTime(date, series.endTime);
+
     const event = await prisma.event.create({
       data: {
         title: series.title,
@@ -143,32 +180,46 @@ export async function generateRosterForSeries(
         status: "PUBLISHED",
         schoolYearId: series.schoolYearId,
         seriesId,
-        trimesterId,
-        createdById,
+        createdById: series.createdById,
       },
     });
 
-    const picked = await pickAttendees(series, stats ?? new Map());
+    const picked = await pickAttendees(series, stats ?? new Map(), previousPicks);
     for (const userId of picked) {
       await prisma.signup.create({
         data: { eventId: event.id, userId, response: "GOING", autoAssigned: true },
       });
       const entry = stats?.get(userId);
       if (entry) {
-        entry.count += 1;
+        entry.balance += series.pointValue;
         entry.lastAssignedAt = startAt;
       }
     }
+    if (series.assignmentMode === "ROTATION") previousPicks = new Set(picked);
     occurrencesCreated++;
   }
 
   return { occurrencesCreated, totalOccurrences: dates.length };
 }
 
+/** Tops up every active series' rolling window for the active school year. */
+export async function extendAllActiveSeriesRosters() {
+  const activeYear = await prisma.schoolYear.findFirst({ where: { isActive: true } });
+  if (!activeYear) return;
+
+  const series = await prisma.recurringSeries.findMany({
+    where: { schoolYearId: activeYear.id, isActive: true },
+    select: { id: true },
+  });
+  for (const s of series) {
+    await extendSeriesRoster(s.id);
+  }
+}
+
 /**
  * Finds a replacement for one vacated slot (a member declined an
  * autoAssigned signup), picking whoever in the pool currently has the
- * fewest assigned slots this trimester. Only applies to ROTATION series —
+ * lowest projected points balance. Only applies to ROTATION series —
  * EVERYONE/SPECIFIC have no "backfill" concept, declining just leaves that
  * one person off, so this returns null immediately for those.
  */
@@ -177,12 +228,11 @@ export async function reassignSlot(eventId: string, declinedUserId: string) {
     where: { id: eventId },
     include: { signups: { where: { response: "GOING" } }, series: true },
   });
-  if (!event.trimesterId) return null; // not a rotation event
   if (!event.series || event.series.assignmentMode !== "ROTATION") return null;
 
-  const stats = await getAssignmentStats(event.trimesterId);
+  const stats = await getAssignmentStats(event.schoolYearId);
   const exclude = new Set([declinedUserId, ...event.signups.map((s) => s.userId)]);
-  const [replacementId] = pickLeastAssigned(stats, exclude, 1);
+  const [replacementId] = pickLowestProjectedBalance(stats, exclude, 1);
   if (!replacementId) return null;
 
   await prisma.signup.create({

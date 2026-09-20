@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/current-user";
 import { prisma } from "@/lib/prisma";
+import { extendSeriesRoster } from "@/lib/rotation";
 
 const seriesSchema = z.object({
   title: z.string().trim().min(1, "Titel is verplicht."),
@@ -14,6 +15,7 @@ const seriesSchema = z.object({
   endTime: z.string().regex(/^\d{2}:\d{2}$/, "Ongeldig tijdstip."),
   pointValue: z.coerce.number().int().min(0),
   membersNeeded: z.coerce.number().int().min(1),
+  weeksAhead: z.coerce.number().int().min(1).max(52),
   assignmentMode: z.enum(["ROTATION", "EVERYONE", "SPECIFIC"]),
 });
 
@@ -29,6 +31,7 @@ function parseSeriesForm(formData: FormData) {
     endTime: formData.get("endTime"),
     pointValue: formData.get("pointValue"),
     membersNeeded: formData.get("membersNeeded") || "1",
+    weeksAhead: formData.get("weeksAhead") || "4",
     assignmentMode: formData.get("assignmentMode") || "ROTATION",
   });
 }
@@ -65,7 +68,13 @@ export async function createSeries(
     });
   }
 
+  // Populate the rolling window right away rather than waiting for the
+  // next periodic tick (see instrumentation.ts).
+  await extendSeriesRoster(series.id);
+
   revalidatePath("/admin/series");
+  revalidatePath("/events");
+  revalidatePath("/dashboard");
   return { status: "idle" };
 }
 
@@ -95,13 +104,28 @@ export async function updateSeries(
       : []),
   ]);
 
+  await extendSeriesRoster(seriesId);
+
   revalidatePath("/admin/series");
   revalidatePath(`/admin/series/${seriesId}/edit`);
+  revalidatePath("/events");
+  revalidatePath("/dashboard");
   return { status: "idle" };
 }
 
 export async function toggleSeriesActive(seriesId: string, isActive: boolean) {
   await requireAdmin();
   await prisma.recurringSeries.update({ where: { id: seriesId }, data: { isActive } });
+  if (isActive) await extendSeriesRoster(seriesId);
   revalidatePath("/admin/series");
+}
+
+/** Manual "Genereer nu" trigger — tops up the rolling window immediately
+ * instead of waiting for the next periodic tick. */
+export async function extendSeriesRosterAction(seriesId: string) {
+  await requireAdmin();
+  await extendSeriesRoster(seriesId);
+  revalidatePath("/admin/series");
+  revalidatePath("/events");
+  revalidatePath("/dashboard");
 }

@@ -26,6 +26,7 @@ export default async function NewSeriesPage() {
             endTime: "13:00",
             pointValue: "1",
             membersNeeded: "1",
+            weeksAhead: "4",
             assignmentMode: "ROTATION",
             inviteUserIds: [],
           }}

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { toggleSeriesActive } from "@/actions/admin/series";
+import { toggleSeriesActive, extendSeriesRosterAction } from "@/actions/admin/series";
 
 const DAYS = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
 const MODE_LABELS: Record<string, string> = {
@@ -27,11 +27,9 @@ export default async function AdminSeriesPage() {
         </Link>
       </div>
       <p className="text-sm text-zinc-500">
-        Genereer roosters per trimester via{" "}
-        <Link href="/admin/trimesters" className="underline">
-          Trimesters
-        </Link>
-        .
+        Elke actieve reeks vult haar rooster automatisch aan tot haar eigen &ldquo;weken
+        vooruit&rdquo;-venster. Wil je niet wachten op de volgende automatische aanvulling, gebruik
+        dan &ldquo;Genereer nu&rdquo;.
       </p>
 
       {series.length === 0 ? (
@@ -46,6 +44,7 @@ export default async function AdminSeriesPage() {
                 <th className="py-2 pr-4">Tijd</th>
                 <th className="py-2 pr-4">Wie</th>
                 <th className="py-2 pr-4">Punten</th>
+                <th className="py-2 pr-4">Weken vooruit</th>
                 <th className="py-2 pr-4" />
               </tr>
             </thead>
@@ -73,12 +72,26 @@ export default async function AdminSeriesPage() {
                     {s.assignmentMode === "SPECIFIC" && ` (${s._count.invitedMembers})`}
                   </td>
                   <td className="py-2 pr-4">{s.pointValue}</td>
-                  <td className="py-2 pr-4">
-                    <form action={toggleSeriesActive.bind(null, s.id, !s.isActive)}>
+                  <td className="py-2 pr-4">{s.weeksAhead}</td>
+                  <td className="py-2 pr-4 whitespace-nowrap">
+                    <form
+                      action={toggleSeriesActive.bind(null, s.id, !s.isActive)}
+                      className="inline"
+                    >
                       <button type="submit" className="underline underline-offset-2">
                         {s.isActive ? "Deactiveren" : "Activeren"}
                       </button>
                     </form>
+                    {s.isActive && (
+                      <form
+                        action={extendSeriesRosterAction.bind(null, s.id)}
+                        className="ml-3 inline"
+                      >
+                        <button type="submit" className="underline underline-offset-2">
+                          Genereer nu
+                        </button>
+                      </form>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -43,15 +43,9 @@ export default async function AdminHomePage() {
         className="rounded-xl border border-brand-600/15 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-600/30 hover:bg-brand-600/5 hover:shadow-md"
       >
         <p className="font-medium text-brand-900">Terugkerende events</p>
-        <p className="text-sm text-zinc-600">Wekelijkse beurten (bv. schoolwinkeltje).</p>
-      </Link>
-
-      <Link
-        href="/admin/trimesters"
-        className="rounded-xl border border-brand-600/15 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-600/30 hover:bg-brand-600/5 hover:shadow-md"
-      >
-        <p className="font-medium text-brand-900">Trimesters</p>
-        <p className="text-sm text-zinc-600">Roosters genereren en eerlijke verdeling bekijken.</p>
+        <p className="text-sm text-zinc-600">
+          Wekelijkse beurten (bv. schoolwinkeltje) — rooster wordt automatisch aangevuld.
+        </p>
       </Link>
 
       <Link

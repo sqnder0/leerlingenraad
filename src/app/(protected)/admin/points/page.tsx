@@ -27,6 +27,8 @@ export default async function PointsPage({
         (a, b) => b.balance - a.balance,
       )
     : [];
+  const average =
+    balances.length > 0 ? balances.reduce((sum, m) => sum + m.balance, 0) / balances.length : 0;
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-6">
@@ -69,6 +71,12 @@ export default async function PointsPage({
         <p className="text-sm text-zinc-500">Geen schooljaar ingesteld.</p>
       ) : (
         <div className="overflow-x-auto">
+          {balances.length > 0 && (
+            <p className="mb-2 text-sm text-zinc-500">
+              Gemiddelde balans:{" "}
+              <span className="font-medium text-brand-900">{average.toFixed(1)}</span>
+            </p>
+          )}
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-brand-600/15 text-zinc-500">

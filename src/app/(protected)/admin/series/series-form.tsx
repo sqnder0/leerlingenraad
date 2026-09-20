@@ -39,6 +39,7 @@ export type SeriesFormValues = {
   endTime: string;
   pointValue: string;
   membersNeeded: string;
+  weeksAhead: string;
   assignmentMode: "ROTATION" | "EVERYONE" | "SPECIFIC";
   inviteUserIds: string[];
 };
@@ -169,6 +170,26 @@ export function SeriesForm({
           required
           className={inputClass}
         />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="weeksAhead" className="text-sm text-zinc-600">
+          Weken vooruit genereren
+        </label>
+        <input
+          id="weeksAhead"
+          name="weeksAhead"
+          type="number"
+          min={1}
+          max={52}
+          defaultValue={defaultValues.weeksAhead}
+          required
+          className={inputClass}
+        />
+        <p className="text-xs text-zinc-500">
+          Het rooster wordt automatisch aangevuld zodat er altijd zoveel weken vooruit gepland
+          staat.
+        </p>
       </div>
 
       <fieldset className="flex flex-col gap-2">

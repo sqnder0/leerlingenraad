@@ -13,6 +13,7 @@ const registerSchema = z
     firstName: z.string().trim().min(1, "Voornaam is verplicht."),
     lastName: z.string().trim().min(1, "Achternaam is verplicht."),
     classGroup: z.string().trim().optional(),
+    isTeacher: z.coerce.boolean(),
     password: z.string().min(8, "Wachtwoord moet minstens 8 tekens lang zijn."),
     confirmPassword: z.string(),
   })
@@ -45,20 +46,31 @@ export async function registerViaInvite(
     firstName: formData.get("firstName"),
     lastName: formData.get("lastName"),
     classGroup: formData.get("classGroup") || undefined,
+    isTeacher: formData.get("isTeacher") === "on",
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
   });
   if (!parsed.success) {
     return { status: "error", message: parsed.error.issues[0].message };
   }
-  const { firstName, lastName, classGroup, password } = parsed.data;
+  const { firstName, lastName, isTeacher, password } = parsed.data;
+  // Teachers don't belong to a class — ignore whatever the (hidden) field held.
+  const classGroup = isTeacher ? undefined : parsed.data.classGroup;
 
   const username = await generateUsername(firstName, lastName);
   const passwordHash = await hashPassword(password);
 
   await prisma.$transaction([
     prisma.user.create({
-      data: { firstName, lastName, username, classGroup, passwordHash, invitedViaId: invite!.id },
+      data: {
+        firstName,
+        lastName,
+        username,
+        classGroup,
+        isTeacher,
+        passwordHash,
+        invitedViaId: invite!.id,
+      },
     }),
     prisma.inviteLink.update({
       where: { id: invite!.id },

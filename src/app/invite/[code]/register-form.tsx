@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { registerViaInvite, type RegisterState } from "@/actions/register";
 
 const initialState: RegisterState = { status: "idle" };
@@ -12,6 +12,7 @@ export function RegisterForm({ code }: { code: string }) {
     registerViaInvite.bind(null, code),
     initialState,
   );
+  const [isTeacher, setIsTeacher] = useState(false);
 
   return (
     <form
@@ -36,12 +37,24 @@ export function RegisterForm({ code }: { code: string }) {
         <input id="lastName" name="lastName" required className={inputClass} />
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="classGroup" className="text-sm text-zinc-600">
-          Klas (optioneel)
-        </label>
-        <input id="classGroup" name="classGroup" placeholder="bv. 5A" className={inputClass} />
-      </div>
+      <label className="flex items-center gap-2 text-sm text-zinc-600">
+        <input
+          type="checkbox"
+          name="isTeacher"
+          checked={isTeacher}
+          onChange={(e) => setIsTeacher(e.target.checked)}
+        />
+        Ik ben leerkracht
+      </label>
+
+      {!isTeacher && (
+        <div className="flex flex-col gap-1">
+          <label htmlFor="classGroup" className="text-sm text-zinc-600">
+            Klas (optioneel)
+          </label>
+          <input id="classGroup" name="classGroup" placeholder="bv. 5A" className={inputClass} />
+        </div>
+      )}
 
       <div className="flex flex-col gap-1">
         <label htmlFor="password" className="text-sm text-zinc-600">

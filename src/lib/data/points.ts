@@ -30,6 +30,75 @@ export async function getBalances(schoolYearId: string, classGroup?: string) {
   return members.map((m) => ({ ...m, balance: balanceByUser.get(m.id) ?? 0 }));
 }
 
+/**
+ * Current balance plus the point value of each user's own already-scheduled
+ * but not-yet-awarded GOING signups (future events, points not yet given
+ * out via confirmAttendance). Used by the duty-rotation picker so it favors
+ * whoever will end up lowest, not just whoever already is — the whole
+ * point of "accounting for points you'll gain" is to keep the picker from
+ * repeatedly stacking one person once they're due for something else.
+ */
+export async function getProjectedBalances(
+  schoolYearId: string,
+  userIds: string[],
+): Promise<Map<string, number>> {
+  if (userIds.length === 0) return new Map();
+
+  const [ledgerSums, futureSignups] = await Promise.all([
+    prisma.pointsLedger.groupBy({
+      by: ["userId"],
+      where: { userId: { in: userIds }, schoolYearId },
+      _sum: { delta: true },
+    }),
+    prisma.signup.findMany({
+      where: {
+        userId: { in: userIds },
+        response: "GOING",
+        pointsAwarded: false,
+        event: { schoolYearId, startAt: { gt: new Date() } },
+      },
+      select: { userId: true, event: { select: { pointValue: true } } },
+    }),
+  ]);
+
+  const balances = new Map(userIds.map((id) => [id, 0]));
+  for (const row of ledgerSums) balances.set(row.userId, row._sum.delta ?? 0);
+  for (const s of futureSignups) {
+    balances.set(s.userId, (balances.get(s.userId) ?? 0) + s.event.pointValue);
+  }
+  return balances;
+}
+
+/**
+ * A member's own current balance alongside the average across the same
+ * rotation-eligible pool (approved, non-teacher) — shown on the member
+ * dashboard so people can see how much they should still contribute to
+ * end the school year level with everyone else (plan §3 exception: this
+ * is aggregate/self-only, never another member's individual balance).
+ */
+export async function getFairnessSummary(
+  userId: string,
+  schoolYearId: string,
+): Promise<{ myBalance: number; average: number }> {
+  const pool = await prisma.user.findMany({
+    where: { status: "APPROVED", isTeacher: false },
+    select: { id: true },
+  });
+  const ids = pool.map((u) => u.id);
+
+  const [myBalance, sums] = await Promise.all([
+    getBalance(userId, schoolYearId),
+    prisma.pointsLedger.groupBy({
+      by: ["userId"],
+      where: { userId: { in: ids }, schoolYearId },
+      _sum: { delta: true },
+    }),
+  ]);
+  const total = sums.reduce((sum, row) => sum + (row._sum.delta ?? 0), 0);
+
+  return { myBalance, average: ids.length > 0 ? total / ids.length : 0 };
+}
+
 export async function getLedgerEntries(userId: string, schoolYearId: string) {
   return prisma.pointsLedger.findMany({
     where: { userId, schoolYearId },

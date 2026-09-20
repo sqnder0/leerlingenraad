@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { requireApprovedUser } from "@/lib/current-user";
 import { prisma } from "@/lib/prisma";
+import { getFairnessSummary } from "@/lib/data/points";
 import { NotificationOptIn } from "@/components/notification-opt-in";
 import { ExpectedList, type ExpectedSignup } from "@/components/dashboard/expected-list";
 import { OptInList, type OptInEvent } from "@/components/dashboard/opt-in-list";
@@ -76,6 +77,12 @@ export default async function DashboardPage() {
   const now = new Date();
   const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
+  const activeSchoolYear = await prisma.schoolYear.findFirst({ where: { isActive: true } });
+  const fairness =
+    activeSchoolYear && !user.isTeacher
+      ? await getFairnessSummary(user.id, activeSchoolYear.id)
+      : null;
+
   const [expectedRows, optInEventRows] = await Promise.all([
     // Opt-out: duty/rotation slots you're auto-assigned to and still on the
     // hook for — "Ik kan niet" declines and triggers reassignment.
@@ -125,6 +132,22 @@ export default async function DashboardPage() {
           {new Intl.DateTimeFormat("nl-BE", TODAY_FORMAT).format(now)}
         </p>
       </div>
+
+      {fairness && (
+        <div className="rounded-xl border border-brand-600/15 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between text-sm text-zinc-500">
+            <span>Jouw punten dit schooljaar</span>
+            <span>Gemiddelde: {fairness.average.toFixed(1)}</span>
+          </div>
+          <p className="mt-1 text-2xl font-semibold text-brand-900">{fairness.myBalance}</p>
+          {fairness.myBalance < fairness.average && (
+            <p className="mt-1 text-sm text-zinc-600">
+              Je zit {(fairness.average - fairness.myBalance).toFixed(1)} punten onder het
+              gemiddelde — meld je gerust aan voor wat extra beurten.
+            </p>
+          )}
+        </div>
+      )}
 
       <NotificationOptIn />
 

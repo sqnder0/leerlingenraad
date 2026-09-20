@@ -25,7 +25,7 @@ export async function rsvp(eventId: string, response: "GOING" | "NOT_GOING") {
  * A member declines a duty they were auto-assigned to. Keeps the signup
  * row (autoAssigned stays true, response flips to NOT_GOING — no penalty,
  * see docs/plan.md), then immediately reassigns the slot to whoever
- * currently has the fewest assigned slots this trimester.
+ * currently has the lowest projected points balance this school year.
  */
 export async function declineAssignment(signupId: string) {
   const user = await requireApprovedUser();

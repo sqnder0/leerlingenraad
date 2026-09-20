@@ -14,11 +14,11 @@ Greenfield build — the project directory is currently empty. Stack, hosting, a
 - **Auth now**: fallback credentials (username = first name, password = last name, both admin-entered when a member is added). New accounts start `PENDING`; an admin explicitly approves or rejects before the member gets real access.
 - **Auth later**: Smartschool OAuth, once the school's Smartschool admin registers an OAuth app and hands over client credentials — that's a manual, out-of-band step for the user, not something buildable now. The auth layer is architected so this slots in later without a data-model rework.
 - **Known tradeoff, accepted deliberately**: first-name/last-name-as-password is guessable by anyone who knows a member's name. Acceptable short-term because this is a low-sensitivity internal club tool, and the real fix (Smartschool OAuth) is already the plan — not solving this with password-complexity theater in the meantime.
-- **Points**: hybrid. Each event has an admin-set base `pointValue`. Points are awarded automatically, but only once an admin confirms actual attendance post-event (not just RSVP intent) — avoids rewarding no-shows. Admins can also manually adjust a member's points with a reason (ledger-style, auditable). **Points are never exposed to members** — enforced structurally, not just hidden in the UI (see §3).
+- **Points**: hybrid. Each event has an admin-set base `pointValue`. Points are awarded automatically, but only once an admin confirms actual attendance post-event (not just RSVP intent) — avoids rewarding no-shows. Admins can also manually adjust a member's points with a reason (ledger-style, auditable). **Individual ledger detail (who has what, and why) is admin-only** — enforced structurally, not just hidden in the UI (see §3). The one deliberate exception: a member's own balance plus the school-year average across the rotation pool is shown on their dashboard, so people can see how much they should still contribute — never another member's individual balance.
 - **Vrijroosteren**: read-only report derived from existing signup data — no separate approval workflow. Grouped by date, showing member name + class + event, exportable as CSV and print-friendly.
 - **Data retention**: points/signup history is archived per school year rather than kept as one indefinite pool. Members' accounts persist across years (people stay on the council for multiple years), but the fairness view is scoped to the _active_ school year, with prior years viewable as read-only archives. This needs a `SchoolYear` concept from the start (see §1).
 - **Hosting**: self-host via the user's existing Dokploy instance (Docker + Postgres), not Vercel/managed cloud.
-- **Recurring duty rotation** (added during M3): some events repeat weekly (e.g. schoolwinkeltje bemannen) and shouldn't rely on open RSVP — the system auto-assigns who's on duty each week, spreading the load evenly. Rotation pool: all `APPROVED` users with `isTeacher = false` (role doesn't matter — non-teacher admins are included). Fairness is computed per `Trimester`, a new explicit date range under a `SchoolYear`. If an assigned member can't make it, they decline and the system immediately reassigns that slot to whoever in the pool currently has the fewest auto-assigned slots this trimester — no admin step needed, no penalty to the decliner.
+- **Recurring duty rotation** (added M3, reworked later to be points-based and trimester-free): some events repeat weekly (e.g. schoolwinkeltje bemannen) and shouldn't rely on open RSVP — the system auto-assigns who's on duty each week, spreading the load evenly. Rotation pool: all `APPROVED` users with `isTeacher = false` (role doesn't matter — non-teacher admins are included). Occurrences are generated on a rolling basis — each `RecurringSeries` has its own `weeksAhead` setting, and the app keeps that many weeks generated at all times (periodic job in `instrumentation.ts`, plus a manual "genereer nu" trigger) — replacing the original whole-trimester-at-once generation. Each new occurrence goes to whoever has the lowest _projected_ points balance (current balance plus points from their own already-scheduled-but-not-yet-awarded signups, so a pick doesn't just reflect the past but accounts for what's already coming), so balances converge toward equal by the end of the school year; the immediately preceding occurrence's picks are excluded from the next one (falling back to allowing a repeat only if the pool is too small) so the same person can't be handed the duty two weeks running. If an assigned member can't make it, they decline and the system immediately reassigns that slot the same way — no admin step needed, no penalty to the decliner.
 - **First-admin bootstrap** (added M8): no self-registration exists anywhere in this app, which is a chicken-and-egg problem on a brand new deploy — no admin exists yet to create the first account via `/admin/members/new`. `POST /api/bootstrap` (outside the auth-gated app entirely) solves this: it requires a `BOOTSTRAP_SECRET` env var as a header AND only ever works while the `users` table is empty, so it self-disables permanently after the first real admin is created. See README "Inloggen".
 
 ## 1. Data model (Prisma / Postgres)
@@ -42,17 +42,14 @@ Greenfield build — the project directory is currently empty. Stack, hosting, a
 
 **Account / Session / VerificationToken** — standard Auth.js Prisma-adapter tables, created now even though only Credentials is used, so a Smartschool OAuth provider can be added later with zero schema changes.
 
-**Trimester** (added M3 — the date-range fairness scopes for duty rotation)
-
-- `id`, `label` (e.g. `"Trimester 1"`), `startsAt`, `endsAt`, `schoolYearId` (FK)
-- `createdAt`, `updatedAt`
-
 **RecurringSeries** (added M3 — a weekly duty template, e.g. "Schoolwinkeltje bemannen")
 
 - `id`, `title`, `description` (nullable), `location` (nullable)
 - `dayOfWeek` (int, 0 = Sunday .. 6 = Saturday, JS `Date.getDay()` convention)
 - `startTime`, `endTime` (string, `"HH:mm"` — combined with each occurrence's date to build that `Event`'s `startAt`/`endAt`)
-- `pointValue` (int), `membersNeeded` (int, default 1 — slots to fill per occurrence)
+- `pointValue` (int), `membersNeeded` (int, default 1 — slots to fill per occurrence, `ROTATION` mode only)
+- `weeksAhead` (int, default 4) — how many weeks into the future this series' occurrences are kept generated (rolling window, see "Recurring duty rotation" above)
+- `assignmentMode`: enum `ROTATION | EVERYONE | SPECIFIC`
 - `schoolYearId` (FK), `isActive` (bool, default true)
 - `createdById` (User FK), `createdAt`, `updatedAt`
 
@@ -62,7 +59,7 @@ Greenfield build — the project directory is currently empty. Stack, hosting, a
 - `pointValue` (int, admin-set)
 - `status`: enum `DRAFT | PUBLISHED | CANCELLED | COMPLETED` (`COMPLETED` = attendance confirmed / points awarded)
 - `schoolYearId` (FK — assigned from the active school year at creation time)
-- `seriesId` (nullable FK to `RecurringSeries`) and `trimesterId` (nullable FK to `Trimester`) — set only on occurrences generated by the roster-generation action, added M3
+- `seriesId` (nullable FK to `RecurringSeries`) — set only on occurrences generated by the roster-generation action, added M3
 - `createdById` (User FK), `createdAt`, `updatedAt`
 
 **Signup** (RSVP, and — added M3 — duty assignment)
@@ -125,8 +122,8 @@ Balance = `SUM(delta)` computed on read, scoped to a `schoolYearId` (defaults to
 - `/admin/members`, `/admin/members/new` (generates username/password, shown once for handoff), `/admin/members/[id]` (status/role, points ledger, manual adjustment)
 - `/admin/events`, `/admin/events/new`, `/admin/events/[id]/edit`
 - `/admin/events/[id]/signups`, `/admin/events/[id]/attendance` (present/absent checklist → idempotent points-award action, sets event `COMPLETED`)
-- `/admin/series`, `/admin/series/new` — manage `RecurringSeries` templates (day/time/point value/members needed)
-- `/admin/trimesters`, `/admin/trimesters/new`, `/admin/trimesters/[id]` — manage trimester date ranges; the `[id]` page generates the roster (pick a series → creates occurrences + fair assignments) and shows the resulting roster plus an assignment-count-per-member fairness table
+- `/admin/series`, `/admin/series/new`, `/admin/series/[id]/edit` — manage `RecurringSeries` templates (day/time/point value/members needed/weeksAhead/assignment mode); each active series keeps its own rolling window generated automatically, with a manual "genereer nu" trigger per series for an immediate top-up
+- `/admin/invites`, `/admin/invites/new` — generate/revoke self-registration invite links (optional label/expiry/max-uses)
 - `/admin/points` — fairness dashboard, sortable by balance, filterable by class, year-selector (defaults to active school year)
 - `/admin/school-years` — list years, "archive current & start new year" action
 - `/admin/vrijroosteren` — date-range report (date, event, member name, class); `/admin/vrijroosteren/export` — CSV route handler; report page itself is print-stylesheet-friendly
